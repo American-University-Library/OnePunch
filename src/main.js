@@ -25,6 +25,8 @@ app.preventExit = true;
 const appFolder = path.dirname(process.execPath)
 const exeName = path.basename(process.execPath)
 
+console.log('Logging')
+
 app.setLoginItemSettings({
     openAtLogin: true,
     args: [
@@ -273,7 +275,7 @@ function createSettingsWindow() {
     settingsWindow = new BrowserWindow({
         width: 350,
         height: 925,
-        resizable: false,
+        resizable: true,
         show: true,
         center: true,
         maximizable: false,
@@ -310,6 +312,10 @@ function createMainWindow() {
             nodeIntegration: true
         }
     });
+
+    //debugging
+    mainWindow.webContents.openDevTools()
+
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, '/views/index.html'),
         protocol: 'file:',
@@ -345,10 +351,13 @@ app.on('ready', function () {
     // launch the splash screen and main window
     // check for updates
     SettingsScript.getSetting().then(function (returnedSettings) {
+        console.log(returnedSettings)
+        const altNotifications = returnedSettings.altNotifications || false;
         if (returnedSettings.initialized) {
             if (returnedSettings.reminders == "notifications" || returnedSettings.reminders == "popups") {
                 loopReminders(returnedSettings);
             }
+            
             createSplashScreen();
             createMainWindow()
             // autoUpdater.checkForUpdates();
@@ -363,10 +372,11 @@ app.on('ready', function () {
                         let osRelease = os.release();
                         let osReleaseArray = osRelease.split(".");
                         let osReleaseNum = osReleaseArray[2];
-                        let slimNotifications = false;
-                        if (osReleaseNum >= 16000 && slimNotifications === true) {
+                        if (/*osReleaseNum >= 16000 ||*/altNotifications) {
+                            console.log('In alt notifications')
                             createRemindersWindow();
                         } else {
+                            console.log('In regular notifications')
                             createNotificationReminder();
                         }
                     }
@@ -612,6 +622,6 @@ var showToaster = function (msg) {
 // windows versions > 16000 require the app to explicitly declare the model id
 // it must match the one in package.json
 // without this you can't register native notifications
-app.setAppUserModelId("com.app.onepunch")
+//app.setAppUserModelId("com.app.onepunch")
 
-// app.setAppUserModelId(process.execPath)
+app.setAppUserModelId(process.execPath)

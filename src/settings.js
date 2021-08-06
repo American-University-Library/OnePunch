@@ -47,6 +47,7 @@ document.getElementById("saveBtn").addEventListener("click", function () {
     let chosenDir = document.getElementById("logPath").value;
     let logStrategy = document.getElementById("logStrategy").value;
     let assumeDisconnected = document.getElementById('assumeDisconnectedCheck').checked;
+    let altNotifications = document.getElementById('altNotifications').checked;
     let settingsObj = {};
     if (deskName != "" && chosenDir != "") {
         GetLogLocations.getLogLocations(chosenDir, logStrategy).then(function (logPath) {
@@ -61,6 +62,8 @@ document.getElementById("saveBtn").addEventListener("click", function () {
                     return SettingsScript.saveSetting('reminders', remindersChoice);
                 }).then(function (settingSaved) {
                     return SettingsScript.saveSetting('assumeDisconnected', assumeDisconnected);
+                }).then(function (settingSaved) {
+                    return SettingsScript.saveSetting('altNotifications', altNotifications);
                 }).then(function (settingSaved) {
                     return SettingsScript.saveSetting('initialized', true);
                 }).then(function (settingSaved) {
@@ -80,8 +83,10 @@ document.getElementById("saveBtn").addEventListener("click", function () {
     }
 });
 
-const monitorScreen = screen.getPrimaryDisplay();
+/*const monitorScreen = screen.getPrimaryDisplay();
 const monitorScreenHeight = monitorScreen.workAreaSize.height;
 if (monitorScreenHeight < 925) {
     document.body.style.overflowY = "scroll";
-}
+}*/
+
+document.body.style.overflowY = "scroll";

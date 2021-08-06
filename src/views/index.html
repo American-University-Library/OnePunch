@@ -22,9 +22,11 @@
         <div class="twelve wide column">
         </div>
         <div class="twelve wide column main-owl">
-            <a href="#" id="mainOwlIcon"><img class="ui centered image" id="mainOwlIconImage" src="../images/owl_ico_128.png" alt="One Punch Icon" style="padding: 40px 0px 10px 0px;">
+            <a href="#" id="mainOwlIcon"><img class="ui centered image" id="mainOwlIconImage"
+                    src="../images/owl_ico_128.png" alt="One Punch Icon" style="padding: 40px 0px 10px 0px;">
                 <div id="overlayDiv" class="ui centered">
-                    <img class="ui centered image" src="../images/edit.png" alt="One Punch Icon" style="padding: 40px 0px 10px 0px;">
+                    <img class="ui centered image" src="../images/edit.png" alt="One Punch Icon"
+                        style="padding: 40px 0px 10px 0px;">
                     <p id="overlayText"><strong>Choose a new<br>Owl-vatar!</strong></p>
                 </div>
             </a>
@@ -42,7 +44,8 @@
         </div>
 
         <div class="fourteen wide column">
-            <p style="text-align: center"><br><br><br><span id="appVersion"></span><br><br><br><a href="#" id="showAbout">About OnePunch</a></p>
+            <p style="text-align: center"><br><br><br><span id="appVersion"></span><br><br><br><a href="#"
+                    id="showAbout">About OnePunch</a></p>
         </div>
     </div>
     <div id="reportsTab" class="tabContent ui grid middle aligned centered" style="display:none;">
@@ -84,22 +87,97 @@
         </div>
     </div>
     <div id="settingsTab" class="tabContent ui grid middle aligned centered" style="display:none;">
+
+
+        
+
         <div class="fourteen wide column">
-            <h2 class="tooltip">Data Storage<span class="tooltiptext">The shared location where interactions will be logged. Be sure to pick the same folder for all the computers in your unit.</span></h2>
+            <h2 class="tooltip">Storage Strategy<span class="tooltiptext">Choose the strategy for saving data.</span>
+            </h2>
         </div>
         <div class="twelve wide column">
+            <div class="field">
+                <input type="radio" name="strategy" value="network" class="ui radio checkbox" checked>
+                <label for="network">Network</label>
+            </div>
+            <div class="field">
+                <input type="radio" name="strategy" value="cloud" class="ui radio checkbox">
+                <label for="cloud">Cloud</label>
+            </div>
+            <input id="currentStrategy" type="hidden" name="userSetting" value="">
+        </div>
+
+
+
+
+
+        <div class="fourteen wide column network storage">
+            <h2 class="tooltip">Data Storage<span class="tooltiptext">The shared location where interactions will be
+                    logged. Be sure to pick the same folder for all the computers in your unit.</span></h2>
+        </div>
+        <div class="twelve wide column network storage">
             <span id="logFolderName">Choose where you'd like to save logs</span>
         </div>
-        <div class="twelve wide column">
+        <div class="twelve wide column network storage">
             <button id="networkPicker" class="ui primary button fluid">Choose Network Directory</button>
             <button id="googlePicker" class="ui primary button fluid" style="display:none;">Choose Google</button>
             <button id="officePicker" class="ui primary button fluid" style="display:none;">Choose Office</button>
-            <button id="cloudPicker" class="ui primary button fluid" style="display:none;">Choose Cloud</button>
         </div>
+        <div class="fourteen wide column cloud storage" style="display:none;">
+            <h2 class="tooltip">Data Storage<span class="tooltiptext">Enter the https address for your cloud data
+                    storage.</span></h2>
+        </div>
+        <div class="twelve wide column cloud storage" style="display:none;">
+            <div class="ui input large">
+                <input id="cloudPath" class="ui input large" name="userSetting" type="text"
+                    placeholder="Enter https address" />
+            </div>
+        </div>
+        <div class="fourteen wide column cloud storage" style="display:none;">
+            <h2 class="tooltip">API Key<span class="tooltiptext">Enter the API key generated for your storage.</span>
+            </h2>
+        </div>
+        <div class="twelve wide column cloud storage" style="display:none;">
+            <div class="ui input large">
+                <input id="cloudAuth" class="ui input large" name="userSetting" type="text"
+                    placeholder="Enter API Key" />
+            </div>
+        </div>
+
+        <div class="twelve wide column cloud storage" style="display:none;">
+            <button id="validateBtn" class="fluid ui green button">Validate</button>
+        </div>
+
+
+
+
         <input id="logPath" type="hidden" name="userSetting" value="">
+        <input id="logAuth" type="hidden" name="userSetting" value="">
         <input id="logStrategy" type="hidden" name="userSetting" value="">
+        <hr style="width: 80%;">
+
+
+
+
+
         <div class="fourteen wide column">
-            <h2 class="tooltip">HotKey<span class="tooltiptext">Only one program is allowed to use a single hotkey at once. Be careful not to choose a key that's already being used elsewhere.</span></h2>
+            <h2 class="tooltip">Desk<span class="tooltiptext">Use the same name for all computers at the same
+                    desk.</span></h2>
+        </div>
+        <div class="twelve wide column">
+            <div class="ui input large">
+                <input id="deskPicker" class="ui input large" name="userSetting" type="text"
+                    placeholder="Enter desk name" />
+            </div>
+        </div>
+
+
+        <hr style="width: 80%;">
+
+
+        <div class="fourteen wide column">
+            <h2 class="tooltip">HotKey<span class="tooltiptext">Only one program is allowed to use a single hotkey at
+                    once. Be careful not to choose a key that's already being used elsewhere.</span></h2>
         </div>
         <div class="twelve wide column">
             <div class="field">
@@ -116,8 +194,13 @@
             </div>
             <input id="currentHotKey" type="hidden" name="userSetting" value="">
         </div>
+
+        <hr style="width: 80%;">
+
         <div class="fourteen wide column">
-            <h2 class="tooltip">Reminders<span class="tooltiptext">Reminders will show about once an hour letting you know how many people your desk has helped that day. Popups are a new window in the center of the screen; notifications display in the lower corner.</span></h2>
+            <h2 class="tooltip">Reminders<span class="tooltiptext">Reminders will show about once an hour letting you
+                    know how many people your desk has helped that day. Popups are a new window in the center of the
+                    screen; notifications display in the lower corner.</span></h2>
         </div>
         <div class="twelve wide column">
             <div class="field">
@@ -125,7 +208,8 @@
                 <label for="">None</label>
             </div>
             <div class="field">
-                <input type="radio" name="reminders" value="notifications" id="notifyReminders" class="ui radio checkbox">
+                <input type="radio" name="reminders" value="notifications" id="notifyReminders"
+                    class="ui radio checkbox">
                 <label for="notifyReminders">Notifications</label>
             </div>
             <div class="field">
@@ -133,19 +217,41 @@
                 <label for="ctrlAltF9">Pop-Ups</label>
             </div>
         </div>
+
+        <hr style="width: 80%;">
+
+
         <div class="fourteen wide column">
-            <h2 class="tooltip">Connection Status<span class="tooltiptext">This setting reduces connection error warnings. Use it for desks that won't usually be connected to the shared drive.</span></h2>
+            <h2 class="tooltip">Connection Status<span class="tooltiptext">This setting reduces connection error
+                    warnings. Use it for desks that won't usually be connected to the shared drive.</span></h2>
         </div>
         <div class="ui slider checkbox twelve wide column">
             <input id="assumeDisconnectedCheck" type="checkbox" name="assumeDisconnected">
             <label>Assume no connection</label>
         </div>
+
+        <hr style="width: 80%;">
+
         <div class="fourteen wide column">
-            <h2 class="tooltip">Desk<span class="tooltiptext">Use the same name for all computers at the same desk.</span></h2>
+            <h2 class="tooltip">Alt Notifications<span class="tooltiptext">This setting enables an alternative method
+                    for notification that might be needed depending on your Windows version.</span></h2>
+        </div>
+        <div class="ui slider checkbox twelve wide column">
+            <input id="altNotifications" type="checkbox" name="details">
+            <label>Enable Alt Notifications</label>
+        </div>
+
+        <hr style="width: 80%;">
+
+        
+        <div class="fourteen wide column">
+            <h2 class="tooltip">Desk<span class="tooltiptext">Use the same name for all computers at the same
+                    desk.</span></h2>
         </div>
         <div class="twelve wide column">
             <div class="ui input large">
-                <input id="deskPicker" class="ui input large" name="userSetting" type="text" placeholder="Enter desk name" />
+                <input id="deskPicker" class="ui input large" name="userSetting" type="text"
+                    placeholder="Enter desk name" />
             </div>
         </div>
         <div class="twelve wide column" style="padding: 20px 0px 5px 0px;">
@@ -154,7 +260,6 @@
     </div>
     <script>
         require('../index.js')
-
     </script>
 </body>
 

@@ -49,6 +49,7 @@ module.exports = {
             const assumeDisconnected = settingsLogObject.assumeDisconnected;
             const selectedIcon = settingsLogObject.selectedIcon || "owl_ico";
             const selectedIconName = selectedIcon + "_64.png";
+            const altNotifications = settingsLogObject.altNotifications || false;
             const currentWeekday = logObject.currentWeekday;
             const currentMonth = logObject.currentMonth;
             const currentDateString = logObject.currentDateString;
@@ -86,25 +87,25 @@ module.exports = {
                                             if (err) {
                                                 SaveLocalLog.saveLocalLog(settingsLogObject).then(function (logObject) {
                                                     if (assumeDisconnected) {
-                                                        WindowsNotifications.notify("Logged!", "Logged to local file!", selectedIconName, 2000)
+                                                        WindowsNotifications.notify("Logged!", "Logged to local file!", selectedIconName, 2000, altNotifications)
                                                         resolve(logObject);
                                                     } else {
-                                                        WindowsNotifications.notify("Logged locally!", "Please connect to shared drive.", "exclamation_mark_64.png", 3500);
+                                                        WindowsNotifications.notify("Logged locally!", "Please connect to shared drive.", "exclamation_mark_64.png", 3500, altNotifications);
                                                         resolve(logObject);
                                                     }
                                                 });
                                             } else {
-                                                WindowsNotifications.notify("Logged!", "Logged to shared file!", selectedIconName, 2000)
+                                                WindowsNotifications.notify("Logged!", "Logged to shared file!", selectedIconName, 2000, altNotifications)
                                                 resolve(logObject);
                                             }
                                         });
                                 } else {
-                                    WindowsNotifications.notify("Logged!", "Logged to shared file!", selectedIconName, 2000)
+                                    WindowsNotifications.notify("Logged!", "Logged to shared file!", selectedIconName, 2000, altNotifications)
                                     resolve(logObject);
                                 }
                             });
                     } else {
-                        WindowsNotifications.notify("Logged!", "Logged to shared file", selectedIconName, 2000)
+                        WindowsNotifications.notify("Logged!", "Logged to shared file", selectedIconName, 2000, altNotifications)
                         resolve(logObject);
                     }
                 });

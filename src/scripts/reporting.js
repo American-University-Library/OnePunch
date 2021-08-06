@@ -35,7 +35,7 @@ module.exports = {
                     resolve(reportingComplete);
                 }).catch(function (error) {
                     if (error === "connection error") {
-                        WindowsNotifications.notify("Cannot connect!", "Please connect to network drive", "exclamation_mark_64.png", 3500);
+                        WindowsNotifications.notify("Cannot connect!", "Please connect to network drive", "exclamation_mark_64.png", 3500, returnedSettings.altNotifications);
                     }
                 });
         });

@@ -23,7 +23,7 @@
             <button id="networkPicker" class="ui primary button fluid">Choose Network Directory</button>
             <button id="googlePicker" class="ui primary button fluid" style="display:none;">Choose Google Sheet</button>
             <button id="officePicker" class="ui primary button fluid" style="display:none;">Choose Office 365 Spreadsheet</button>
-            <button id="cloudPicker" class="ui primary button fluid" style="display:none;">Choose Cloud Database</button>
+            <button id="cloudPicker" class="ui primary button fluid">Choose Cloud Database</button>
         </div>
         <input id="logPath" type="hidden" name="userSetting" value="">
         <input id="logStrategy" type="hidden" name="userSetting" value="">
@@ -68,6 +68,13 @@
         <div class="ui slider checkbox twelve wide column">
             <input id="assumeDisconnectedCheck" type="checkbox" name="details">
             <label>Assume No Connection</label>
+        </div>
+        <div class="fourteen wide column">
+            <h2 class="tooltip">Alt Notifications<span class="tooltiptext">This setting enables an alternative method for notification that might be needed depending on your Windows version.</span></h2>
+        </div>
+        <div class="ui slider checkbox twelve wide column">
+            <input id="altNotifications" type="checkbox" name="details">
+            <label>Enable Alt Notifications</label>
         </div>
         <div class="fourteen wide column">
             <h2 class="tooltip">Desk<span class="tooltiptext">Use the same name for all computers at the same desk.</span></h2>

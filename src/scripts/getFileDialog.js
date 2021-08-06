@@ -7,11 +7,14 @@ const {
 
 module.exports = {
     getFolder: function () {
+        console.log('getfolder')
         return new Promise(function (resolve, reject) {
+            console.log('in promise')
             dialog.showOpenDialog({
                 properties: ['openDirectory']
-            }, function (filePaths) {
-                const chosenDir = filePaths[0];
+            }).then(result => {
+                console.log('got file', result)
+                const chosenDir = result.filePaths[0];
                 resolve(chosenDir);
             });
         });

@@ -37,6 +37,27 @@ function setHotKey(hotKey) {
 
 // add tab elements, hide all but home tab
 
+const tabSettings = {
+    settingsTab: {
+        style: [{
+            name: 'overflowY',
+            value: 'scroll'
+        }]
+    },
+    homeTab: {
+        style: [{
+            name: 'overflowY',
+            value: 'hidden'
+        }]
+    },
+    reportsTab: {
+        style: [{
+            name: 'overflowY',
+            value: 'hidden'
+        }]
+    }
+}
+
 document.querySelectorAll(".tabControl").forEach(function (tabCtrl) {
     tabCtrl.addEventListener("click", function () {
         document.querySelectorAll(".tabControl").forEach(function (ctrls) {
@@ -44,6 +65,7 @@ document.querySelectorAll(".tabControl").forEach(function (tabCtrl) {
         });
         this.classList.add("active");
         let tabName = this.value;
+        tabSettings[tabName].style.forEach(style => document.body.style[style.name] = style.value);
         document.querySelectorAll(".tabContent").forEach(function (tabCnt) {
             if (tabCnt.id === tabName) {
                 tabCnt.style.display = "block";
@@ -59,10 +81,10 @@ document.getElementById('appVersion').textContent = 'v ' + appVersion;
 const monitorScreen = screen.getPrimaryDisplay();
 
 // add vertical scroll bars for small screens
-const monitorScreenHeight = monitorScreen.workAreaSize.height;
+/*const monitorScreenHeight = monitorScreen.workAreaSize.height;
 if (monitorScreenHeight < 925) {
     document.body.style.overflowY = "scroll";
-}
+}*/
 
 // load all settings, fill out the settings tab with those values, set the hotkey, and move any local logs
 SettingsScript.getSetting().then(function (returnedSettings) {
@@ -73,9 +95,12 @@ SettingsScript.getSetting().then(function (returnedSettings) {
     let reminders = returnedSettings.reminders || false;
     let logStrategy = returnedSettings.logStrategy || "network";
     let assumeDisconnected = returnedSettings.assumeDisconnected || false;
+    let altNotifications = returnedSettings.altNotifications || false;
     let selectedIcon = returnedSettings.selectedIcon || "owl_ico";
     let selectedIconName = selectedIcon + "_64.png";
     let icon128Path = "../images/" + selectedIcon + "_128.png";
+    let cloudPath = returnedSettings.cloudPath;
+    let cloudAuth = returnedSettings.cloudAuth;
 
     // fill out the settings tab with those settings
     document.getElementById('mainOwlIconImage').src = icon128Path;
@@ -92,11 +117,15 @@ SettingsScript.getSetting().then(function (returnedSettings) {
     });
     document.getElementById("assumeDisconnectedCheck").checked = assumeDisconnected;
     document.getElementById("currentHotKey").value = hotKey;
+    document.getElementById('altNotifications').checked = altNotifications
     const logPath = returnedSettings.logPath.display || "Not defined";
     const logPathValue = returnedSettings.logPath.display || "Not defined";
     document.getElementById("logPath").value = logPathValue;
     document.getElementById("logStrategy").value = logStrategy;
     document.getElementById('logFolderName').textContent = logPath;
+
+    document.getElementById('cloudAuth').value = cloudAuth || '';
+    document.getElementById('cloudPath').value = cloudPath || '';
 
     // set the hotkey
     setHotKey(hotKey);
@@ -107,10 +136,10 @@ SettingsScript.getSetting().then(function (returnedSettings) {
         if (logsMoved !== false) {
             if (logsMoved > 0) {
                 let notifyMessage = "Moved " + logsMoved + " logs from local storage to shared file";
-                WindowsNotifications.notify("Update!", notifyMessage, selectedIconName, 3500);
+                WindowsNotifications.notify("Update!", notifyMessage, selectedIconName, 3500, altNotifications);
             }
         } else {
-            WindowsNotifications.notify("Cannot connect!", "Logs will save locally until connected to network drive", "exclamation_mark_64.png", 3500);
+            WindowsNotifications.notify("Cannot connect!", "Logs will save locally until connected to network drive", "exclamation_mark_64.png", 3500, altNotifications);
         }
     });
 });
@@ -131,13 +160,13 @@ document.getElementById("moveLocalBtn").addEventListener("click", function () {
         if (logsMoved !== false) {
             if (logsMoved > 0) {
                 let notifyMessage = "Moved " + logsMoved + " logs from local storage to shared file";
-                WindowsNotifications.notify("Update!", notifyMessage, selectedIconName, 3500);
+                WindowsNotifications.notify("Update!", notifyMessage, selectedIconName, 3500, altNotifications);
             } else {
                 let notifyMessage = "No local logs to move";
-                WindowsNotifications.notify("Update!", notifyMessage, selectedIconName, 3500);
+                WindowsNotifications.notify("Update!", notifyMessage, selectedIconName, 3500, altNotifications);
             }
         } else {
-            WindowsNotifications.notify("Cannot connect!", "Logs will save locally until connected to network drive", "exclamation_mark_64.png", 3500);
+            WindowsNotifications.notify("Cannot connect!", "Logs will save locally until connected to network drive", "exclamation_mark_64.png", 3500, altNotifications);
         }
     });
 });
@@ -224,11 +253,14 @@ var endPicker = new Pikaday({
 // -- change auth flow stuff starts here with the functionality of new buttons
 
 document.getElementById("networkPicker").addEventListener("click", function () {
+    console.log('picker clicked')
     FileDialog.getFolder().then(function (chosenDir) {
+        console.log('chosen directory', chosenDir)
         document.getElementById('logFolderName').textContent = chosenDir;
         document.getElementById("logPath").value = chosenDir;
         document.getElementById("logStrategy").value = "network";
-    });
+    }).catch(err => console.log('err', err));
+    console.log('finished')
 });
 
 // These next three elements are hidden and do nothing until cloud support is added
@@ -240,9 +272,22 @@ document.getElementById("officePicker").addEventListener("click", function () {
     //do whatever is needed to switch to using office
 });
 
-document.getElementById("cloudPicker").addEventListener("click", function () {
-    //do whatever is needed to switch to using office
-});
+
+const strategyRadios = document.querySelectorAll('input[type=radio][name="strategy"]');
+strategyRadios.forEach(radio => radio.addEventListener('change', () => {
+    console.log(radio.value)
+    const storageDivs = document.querySelectorAll('div.storage');
+    console.log('divs', storageDivs);
+    storageDivs.forEach(div => {
+        const classList = div.classList;
+        if (classList.contains(radio.value)) {
+            div.style.display = 'inline-block';
+        } else {
+            div.style.display = 'none';
+        }
+    })
+}));
+
 
 // -- change auth flow stuff ends here
 
@@ -266,6 +311,12 @@ document.getElementById("saveBtn").addEventListener("click", function () {
     let chosenDir = document.getElementById("logPath").value;
     let logStrategy = document.getElementById("logStrategy").value;
     let assumeDisconnected = document.getElementById('assumeDisconnectedCheck').checked;
+    let altNotifications = document.getElementById('altNotifications').checked;
+
+    let cloudPath = document.getElementById("cloudPath").value;
+    let cloudAuth = document.getElementById("cloudAuth").value;
+
+
     let settingsObj = {};
     if (deskName != "" && chosenDir != "") {
         GetLogLocations.getLogLocations(chosenDir, logStrategy).then(function (logPath) {
@@ -282,6 +333,12 @@ document.getElementById("saveBtn").addEventListener("click", function () {
                     ipcRenderer.send('remindersChanged');
                 }).then(function (settingSaved) {
                     return SettingsScript.saveSetting('assumeDisconnected', assumeDisconnected);
+                }).then(function (settingSaved) {
+                    return SettingsScript.saveSetting('altNotifications', altNotifications);
+                }).then(function (settingSaved) {
+                    return SettingsScript.saveSetting('cloudPath', cloudPath);
+                }).then(function (settingSaved) {
+                    return SettingsScript.saveSetting('cloudAuth', cloudAuth);
                 }).then(function (settingSaved) {
                     globalShortcut.unregister(currentHotKey);
                     setHotKey(hotKeyChoice);
@@ -318,6 +375,12 @@ document.getElementById("showAbout").addEventListener("click", function () {
     ipcRenderer.send('showAboutWindow');
 });
 
+document.getElementById('validateBtn').addEventListener('click', () => {
+    SettingsScript.getSetting().then(({cloudPath, cloudAuth}) => {
+        console.log(cloudPath, cloudAuth)
+    })
+})
+
 
 
 ipcRenderer.on('reminderNotify', (event, dailyPunchCountObj) => {
@@ -330,9 +393,9 @@ ipcRenderer.on('reminderNotify', (event, dailyPunchCountObj) => {
     } else {
         if (dailyPunchCountObj.assumeDisconnected) {
             let notificationTitle = "You've helped " + dailyPunchCount + " people today!";
-            WindowsNotifications.notify(notificationTitle, "Keep on punching!", selectedIconName, 2000)
+            WindowsNotifications.notify(notificationTitle, "Keep on punching!", selectedIconName, 2000, altNotifications)
         } else {
-            WindowsNotifications.notify("Cannot connect!", "Please connect to network drive", "exclamation_mark_64.png", 3500);
+            WindowsNotifications.notify("Cannot connect!", "Please connect to network drive", "exclamation_mark_64.png", 3500, altNotifications);
         }
     }
 });
@@ -342,5 +405,3 @@ ipcRenderer.on('newOwl', (event, owlPicked) => {
     let icon128Path = "../images/" + owlPicked + "_128.png";
     document.getElementById('mainOwlIconImage').src = icon128Path;
 });
-
-
