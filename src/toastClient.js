@@ -1,7 +1,5 @@
 // much of this code comes from electron-toaster and was modified to include custome icons
 
-const ipc = require('electron').ipcRenderer;
-
 function getQueryVariable(variable) {
     var query = window.location.search.substring(1);
     var vars = query.split("&");
@@ -18,7 +16,7 @@ function getQueryVariable(variable) {
  * @param {*} isAuto - true is timeout ended. false if user interacted
  */
 function replyApp(isAuto) {
-    ipc.send('electron-toaster-reply', isAuto);
+    window.preload.send('electron-toaster-reply', isAuto);
 }
 
 var autoSize = function () {

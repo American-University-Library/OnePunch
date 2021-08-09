@@ -1,39 +1,12 @@
-const LogText = require("./scripts/logText");
-const MoveLocalText = require("./scripts/moveLocalText");
-const Reports = require("./scripts/reporting");
-const SettingsScript = require("./scripts/settings_script");
-const GetLogLocations = require("./scripts/getLogLocations");
-const FileDialog = require("./scripts/getFileDialog");
-const Pikaday = require("./scripts/pikaday");
-const WindowsNotifications = require("./scripts/windowsNotifications");
-const NetworkStrategy = require('./scripts/networkStrategy');
-const GoogleStrategy = require('./scripts/googleStrategy');
-const OfficeStrategy = require('./scripts/officeStrategy');
-const CloudStrategy = require('./scripts/cloudStrategy');
+const LogText = window.preload.LogText
+const MoveLocalText = window.preload.MoveLocalText
+const Reports = window.preload.Reports
+const GetLogLocations = window.preload.GetLogLocations
+const FileDialog = window.preload.FileDialog
+const WindowsNotifications = window.preload.WindowsNotifications
 
-const {
-    globalShortcut,
-    dialog,
-    app,
-    screen
-} = require('electron').remote;
-
-const {
-    ipcRenderer,
-    remote
-} = require('electron');
-var main = remote.require("./main.js");
-const path = require('path');
-const iconpath = path.join(__dirname, '/images/owl_ico_16.png');
-const warnIconPath = path.join(__dirname, '/images/exclamation_mark_64.png');
-
-// Function to add HotKey. Will be called after data loaded
-
-function setHotKey(hotKey) {
-    globalShortcut.register(hotKey, () => {
-        LogText.logText();
-    });
-}
+const iconpath = window.preload.getIconPath();
+const warnIconPath = window.preload.getWarnIconPath();
 
 // add tab elements, hide all but home tab
 
@@ -76,9 +49,9 @@ document.querySelectorAll(".tabControl").forEach(function (tabCtrl) {
     });
 });
 
-const appVersion = app.getVersion();
+const appVersion = window.preload.getVersion();
 document.getElementById('appVersion').textContent = 'v ' + appVersion;
-const monitorScreen = screen.getPrimaryDisplay();
+//const monitorScreen = screen.getPrimaryDisplay();
 
 // add vertical scroll bars for small screens
 /*const monitorScreenHeight = monitorScreen.workAreaSize.height;
@@ -86,8 +59,10 @@ if (monitorScreenHeight < 925) {
     document.body.style.overflowY = "scroll";
 }*/
 
+console.log(window.preload.getSettings())
 // load all settings, fill out the settings tab with those values, set the hotkey, and move any local logs
-SettingsScript.getSetting().then(function (returnedSettings) {
+window.preload.getSettings().then(async function (returnedSettings) {
+    console.log('returned settings are', returnedSettings)
 
     // load all the settings
     let hotKey = returnedSettings.hotKey || "F9";
@@ -95,7 +70,7 @@ SettingsScript.getSetting().then(function (returnedSettings) {
     let reminders = returnedSettings.reminders || false;
     let logStrategy = returnedSettings.logStrategy || "network";
     let assumeDisconnected = returnedSettings.assumeDisconnected || false;
-    let altNotifications = returnedSettings.altNotifications || false;
+    altNotifications = returnedSettings.altNotifications || false;
     let selectedIcon = returnedSettings.selectedIcon || "owl_ico";
     let selectedIconName = selectedIcon + "_64.png";
     let icon128Path = "../images/" + selectedIcon + "_128.png";
@@ -128,45 +103,48 @@ SettingsScript.getSetting().then(function (returnedSettings) {
     document.getElementById('cloudPath').value = cloudPath || '';
 
     // set the hotkey
-    setHotKey(hotKey);
+    window.preload.registerHotKey(hotKey, window)
+
+    console.log('alt 3', altNotifications)
 
     // move any local logs
-    MoveLocalText.moveText().then(function (logsMovedObj) {
+    MoveLocalText(window).then(function (logsMovedObj) {
         let logsMoved = logsMovedObj.logsMoved;
         if (logsMoved !== false) {
             if (logsMoved > 0) {
                 let notifyMessage = "Moved " + logsMoved + " logs from local storage to shared file";
-                WindowsNotifications.notify("Update!", notifyMessage, selectedIconName, 3500, altNotifications);
+                WindowsNotifications("Update!", notifyMessage, selectedIconName, 3500, altNotifications, window);
             }
         } else {
-            WindowsNotifications.notify("Cannot connect!", "Logs will save locally until connected to network drive", "exclamation_mark_64.png", 3500, altNotifications);
+            WindowsNotifications("Cannot connect!", "Logs will save locally until connected to network drive", "exclamation_mark_64.png", 3500, altNotifications, window);
         }
     });
 });
 
 document.getElementById("logBtn").addEventListener("click", function () {
-    LogText.logText();
+    LogText(window,'add event listener');
 });
 
 document.getElementById("checkTotalsBtn").addEventListener("click", function () {
-    ipcRenderer.send('getCurrentCount');
+    window.preload.send('getCurrentCount');
 });
 
 document.getElementById("moveLocalBtn").addEventListener("click", function () {
-    MoveLocalText.moveText().then(function (logsMovedObj) {
+    console.log('alt notifications is ', altNotifications)
+    MoveLocalText(window).then(function (logsMovedObj) {
         let logsMoved = logsMovedObj.logsMoved;
         let selectedIcon = logsMovedObj.selectedIcon;
         let selectedIconName = selectedIcon + "_64.png";
         if (logsMoved !== false) {
             if (logsMoved > 0) {
                 let notifyMessage = "Moved " + logsMoved + " logs from local storage to shared file";
-                WindowsNotifications.notify("Update!", notifyMessage, selectedIconName, 3500, altNotifications);
+                WindowsNotifications("Update!", notifyMessage, selectedIconName, 3500, altNotifications, window);
             } else {
                 let notifyMessage = "No local logs to move";
-                WindowsNotifications.notify("Update!", notifyMessage, selectedIconName, 3500, altNotifications);
+                WindowsNotifications("Update!", notifyMessage, selectedIconName, 3500, altNotifications, window);
             }
         } else {
-            WindowsNotifications.notify("Cannot connect!", "Logs will save locally until connected to network drive", "exclamation_mark_64.png", 3500, altNotifications);
+            WindowsNotifications("Cannot connect!", "Logs will save locally until connected to network drive", "exclamation_mark_64.png", 3500, altNotifications, window);
         }
     });
 });
@@ -177,9 +155,9 @@ document.getElementById("generateReportBtn").addEventListener("click", function 
     let endDate = document.getElementById('endDate').value;
     let savePath = document.getElementById("savePath").value;
     if (startDate != "" && endDate != "" && savePath != "") {
-        Reports.generateReport(startDate, endDate, showDetailByDesk, showDetailByHour, savePath).then(function (reportingComplete) {
+        Reports(startDate, endDate, showDetailByDesk, showDetailByHour, savePath,window).then(function (reportingComplete) {
             if (reportingComplete) {
-                dialog.showMessageBox({
+                window.preload.showMessageBox({
                     message: "Report saved!",
                     buttons: ["OK"],
                     type: "info",
@@ -187,7 +165,7 @@ document.getElementById("generateReportBtn").addEventListener("click", function 
                     title: "Saved"
                 });
             } else {
-                dialog.showMessageBox({
+                window.preload.showMessageBox({
                     message: "There was an error generating your report",
                     buttons: ["OK"],
                     type: "info",
@@ -197,7 +175,7 @@ document.getElementById("generateReportBtn").addEventListener("click", function 
             }
         });
     } else {
-        dialog.showMessageBox({
+        window.preload.showMessageBox({
             message: "Please choose report parameters",
             buttons: ["OK"],
             type: "info",
@@ -206,6 +184,8 @@ document.getElementById("generateReportBtn").addEventListener("click", function 
         });
     }
 });
+
+console.log('alt 4', altNotifications)
 
 var startPicker = new Pikaday({
     field: document.getElementById('startDate'),
@@ -254,7 +234,7 @@ var endPicker = new Pikaday({
 
 document.getElementById("networkPicker").addEventListener("click", function () {
     console.log('picker clicked')
-    FileDialog.getFolder().then(function (chosenDir) {
+    FileDialog().then(function (chosenDir) {
         console.log('chosen directory', chosenDir)
         document.getElementById('logFolderName').textContent = chosenDir;
         document.getElementById("logPath").value = chosenDir;
@@ -293,7 +273,7 @@ strategyRadios.forEach(radio => radio.addEventListener('change', () => {
 
 
 document.getElementById("savePicker").addEventListener("click", function () {
-    FileDialog.getFolder().then(function (chosenDir) {
+    FileDialog().then(function (chosenDir) {
         document.getElementById('saveFolderName').textContent = chosenDir;
         document.getElementById("savePath").value = chosenDir;
     });
@@ -319,31 +299,31 @@ document.getElementById("saveBtn").addEventListener("click", function () {
 
     let settingsObj = {};
     if (deskName != "" && chosenDir != "") {
-        GetLogLocations.getLogLocations(chosenDir, logStrategy).then(function (logPath) {
-            SettingsScript.saveSetting('logPath', logPath)
+        GetLogLocations(chosenDir, logStrategy).then(function (logPath) {
+            window.preload.setSetting('logPath', logPath)
                 .then(function (settingSaved) {
-                    return SettingsScript.saveSetting('deskName', deskName);
+                    return window.preload.setSetting('deskName', deskName);
                 }).then(function (settingSaved) {
-                    return SettingsScript.saveSetting('hotKey', hotKeyChoice);
+                    return window.preload.setSetting('hotKey', hotKeyChoice);
                 }).then(function (settingSaved) {
-                    return SettingsScript.saveSetting('logStrategy', logStrategy);
+                    return window.preload.setSetting('logStrategy', logStrategy);
                 }).then(function (settingSaved) {
-                    return SettingsScript.saveSetting('reminders', remindersChoice);
+                    return window.preload.setSetting('reminders', remindersChoice);
                 }).then(function (settingSaved) {
-                    ipcRenderer.send('remindersChanged');
+                    window.preload.send('remindersChanged');
                 }).then(function (settingSaved) {
-                    return SettingsScript.saveSetting('assumeDisconnected', assumeDisconnected);
+                    return window.preload.setSetting('assumeDisconnected', assumeDisconnected);
                 }).then(function (settingSaved) {
-                    return SettingsScript.saveSetting('altNotifications', altNotifications);
+                    return window.preload.setSetting('altNotifications', altNotifications);
                 }).then(function (settingSaved) {
-                    return SettingsScript.saveSetting('cloudPath', cloudPath);
+                    return window.preload.setSetting('cloudPath', cloudPath);
                 }).then(function (settingSaved) {
-                    return SettingsScript.saveSetting('cloudAuth', cloudAuth);
+                    return window.preload.setSetting('cloudAuth', cloudAuth);
+                }).then(async function (settingSaved) {
+                    window.preload.unregisterHotKey(currentHotKey);
+                    window.preload.registerHotKey(hotKeyChoice, window)
                 }).then(function (settingSaved) {
-                    globalShortcut.unregister(currentHotKey);
-                    setHotKey(hotKeyChoice);
-                }).then(function (settingSaved) {
-                    dialog.showMessageBox({
+                    window.preload.showMessageBox({
                         message: "Settings saved!",
                         buttons: ["OK"],
                         type: "info",
@@ -355,7 +335,7 @@ document.getElementById("saveBtn").addEventListener("click", function () {
                 });
         });
     } else {
-        dialog.showMessageBox({
+        window.preload.showMessageBox({
             message: "Please choose your settings",
             buttons: ["OK"],
             type: "info",
@@ -365,43 +345,51 @@ document.getElementById("saveBtn").addEventListener("click", function () {
     }
 });
 
+
+console.log('alt 5', altNotifications)
+
 // ask the main process to open the owl picking window
 document.getElementById("mainOwlIcon").addEventListener("click", function () {
-    ipcRenderer.send('showOwlWindow');
+    window.preload.send('showOwlWindow');
 });
 
 // ask the main process to open the about window
 document.getElementById("showAbout").addEventListener("click", function () {
-    ipcRenderer.send('showAboutWindow');
+    window.preload.send('showAboutWindow');
 });
 
 document.getElementById('validateBtn').addEventListener('click', () => {
-    SettingsScript.getSetting().then(({cloudPath, cloudAuth}) => {
+    window.preload.getSettings().then(({
+        cloudPath,
+        cloudAuth
+    }) => {
         console.log(cloudPath, cloudAuth)
     })
 })
 
 
 
-ipcRenderer.on('reminderNotify', (event, dailyPunchCountObj) => {
+window.preload.on('reminderNotify', (dailyPunchCountObj) => {
+    console.log('in index', dailyPunchCountObj)
     let dailyPunchCount = dailyPunchCountObj.punchCount;
     let selectedIcon = dailyPunchCountObj.selectedIcon || "owl_ico";
     let selectedIconName = selectedIcon + "_64.png";
     if (dailyPunchCountObj.sharedPunches !== false) {
         let notificationTitle = "You've helped " + dailyPunchCount + " people today!";
-        WindowsNotifications.notify(notificationTitle, "Keep on punching!", selectedIconName, 2000)
+        WindowsNotifications(notificationTitle, "Keep on punching!", selectedIconName, 2000, altNotifications, window)
     } else {
         if (dailyPunchCountObj.assumeDisconnected) {
             let notificationTitle = "You've helped " + dailyPunchCount + " people today!";
-            WindowsNotifications.notify(notificationTitle, "Keep on punching!", selectedIconName, 2000, altNotifications)
+            WindowsNotifications(notificationTitle, "Keep on punching!", selectedIconName, 2000, altNotifications, window)
         } else {
-            WindowsNotifications.notify("Cannot connect!", "Please connect to network drive", "exclamation_mark_64.png", 3500, altNotifications);
+            WindowsNotifications("Cannot connect!", "Please connect to network drive", "exclamation_mark_64.png", 3500, altNotifications, window);
         }
     }
 });
 
 // change the main icon after user selects a new image
-ipcRenderer.on('newOwl', (event, owlPicked) => {
+window.preload.on('newOwl', (owlPicked) => {
+    console.log('in index', owlPicked)
     let icon128Path = "../images/" + owlPicked + "_128.png";
     document.getElementById('mainOwlIconImage').src = icon128Path;
 });

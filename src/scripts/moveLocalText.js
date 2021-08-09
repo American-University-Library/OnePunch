@@ -1,9 +1,9 @@
-const SettingsScript = require('./settings_script');
 const NetworkStrategy = require('./networkStrategy');
 const GoogleStrategy = require('./googleStrategy');
 const OfficeStrategy = require('./officeStrategy');
 const CloudStrategy = require('./cloudStrategy');
 
+// const settings = require('electron-settings');
 
 module.exports = {
 
@@ -12,14 +12,14 @@ module.exports = {
     // dependent on user settings
     // as of 1.4.1 only shared drive logging is available
 
-    moveText: function () {
+    moveText: function (window) {
         return new Promise(function (resolve, reject) {
-            SettingsScript.getSetting()
+            window.preload.getSettings()
                 .then(function (returnedSettings) {
                     settings = returnedSettings;
                     if (returnedSettings.localLogs) {
                         if (returnedSettings.logStrategy === "network") {
-                            return NetworkStrategy.moveLocalText(returnedSettings);
+                            return NetworkStrategy.moveLocalText(returnedSettings,window);
                         } else if (returnedSettings.logStrategy === "google") {
                             return GoogleStrategy.moveLocalText(returnedSettings);
                         } else if (returnedSettings.logStrategy === "office") {

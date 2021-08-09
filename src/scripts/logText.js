@@ -1,8 +1,9 @@
-const SettingsScript = require('./settings_script');
 const NetworkStrategy = require('./networkStrategy');
 const GoogleStrategy = require('./googleStrategy');
 const OfficeStrategy = require('./officeStrategy');
 const CloudStrategy = require('./cloudStrategy');
+
+const settings = require('electron-settings');
 
 // the logObject has a weekday, month, date (00 - 31), year, hour (00 - 23), minute (00 - 60), and desk name
 // It's returned as an object attached to the settings object to make the settings available down the promise chain
@@ -54,14 +55,15 @@ module.exports = {
     // dependent on user settings
     // as of 1.4.1 only shared drive logging is available
 
-    logText: function () {
+    logText: function (window,source) {
+        console.log('source is ', source)
         return new Promise(function (resolve, reject) {
-            SettingsScript.getSetting()
+            settings.get()
                 .then(function (returnedSettings) {
                     return generateLogObject(returnedSettings);
                 }).then(function (settingsLogObject) {
                     if (settingsLogObject.logStrategy === "network") {
-                        return NetworkStrategy.enterLog(settingsLogObject);
+                        return NetworkStrategy.enterLog(settingsLogObject,window);
                     } else if (settingsLogObject.logStrategy === "google") {
                         return GoogleStrategy.enterLog(settingsLogObject);
                     } else if (settingsLogObject.logStrategy === "office") {

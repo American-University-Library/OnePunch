@@ -17,35 +17,61 @@
             <img class="ui centered image" src="../images/owl_ico_128.png" alt="One Punch Icon">
         </div>
         <div class="fourteen wide column">
-            <p style="text-align: center"><span id="appVersion"></span><br><br> Images made by <a href="https://www.flaticon.com/authors/becris" title="Becris" class="externalLink">Becris</a>, <a href="https://www.flaticon.com/authors/dimitry-miroliubov" title="Dimitry Miroliubov" class="externalLink">Dimitry Miroliubov</a>, <a href="http://www.freepik.com" title="Freepik" class="externalLink">Freepik</a>, <a href="https://www.flaticon.com/authors/gregor-cresnar" title="Gregor Cresnar" class="externalLink">Gregor Cresnar</a>, <a href="https://www.flaticon.com/authors/pixel-buddha" title="Pixel Buddha" class="externalLink">Pixel Buddha</a>, <a href="https://www.flaticon.com/authors/roundicons" title="Roundicons" class="externalLink">Roundicons</a>, and <a href="https://www.flaticon.com/authors/vectors-market" title="Vectors Market" class="externalLink">Vectors Market</a> from <a href="https://www.flaticon.com/" title="Flaticon" class="externalLink">www.flaticon.com</a> and licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank" class="externalLink">CC 3.0 BY</a>.<br><br>Built with:<br>Electron <span id="electronVersion"></span> and Chrome <span id="chromeVersion"></span><br><br>Source code on GitHub at <a href="https://github.com/aspau/OnePunch" title="GitHub" class="externalLink">aspau/OnePunch</a><br><br>Copyright 2017</p>
-            <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:<br><br>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
-            <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+            <p style="text-align: center"><span id="appVersion"></span><br><br> Images made by <a
+                    href="https://www.flaticon.com/authors/becris" title="Becris" class="externalLink">Becris</a>, <a
+                    href="https://www.flaticon.com/authors/dimitry-miroliubov" title="Dimitry Miroliubov"
+                    class="externalLink">Dimitry Miroliubov</a>, <a href="http://www.freepik.com" title="Freepik"
+                    class="externalLink">Freepik</a>, <a href="https://www.flaticon.com/authors/gregor-cresnar"
+                    title="Gregor Cresnar" class="externalLink">Gregor Cresnar</a>, <a
+                    href="https://www.flaticon.com/authors/pixel-buddha" title="Pixel Buddha" class="externalLink">Pixel
+                    Buddha</a>, <a href="https://www.flaticon.com/authors/roundicons" title="Roundicons"
+                    class="externalLink">Roundicons</a>, and <a href="https://www.flaticon.com/authors/vectors-market"
+                    title="Vectors Market" class="externalLink">Vectors Market</a> from <a
+                    href="https://www.flaticon.com/" title="Flaticon" class="externalLink">www.flaticon.com</a> and
+                licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0"
+                    target="_blank" class="externalLink">CC 3.0 BY</a>.<br><br>Built with:<br>Electron <span
+                    id="electronVersion"></span> and Chrome <span id="chromeVersion"></span><br><br>Source code on
+                GitHub at <a href="https://github.com/aspau/OnePunch" title="GitHub"
+                    class="externalLink">aspau/OnePunch</a><br><br>Copyright 2017</p>
+            <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+                associated documentation files (the "Software"), to deal in the Software without restriction, including
+                without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+                copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
+                following conditions:<br><br>The above copyright notice and this permission notice shall be included in
+                all copies or substantial portions of the Software.</p>
+            <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+                LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+                NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+                WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+                SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
         </div>
     </div>
+
+    <script>
+        const appVersion = window.preload.getVersion();
+
+        document.getElementById('appVersion').textContent = "v " + appVersion;
+
+        const electronVersion = window.preload.getElectronVersion();
+
+
+        document.getElementById('electronVersion').textContent = electronVersion;
+
+        const chromeVersion = window.preload.getChromeVersion();
+
+        document.getElementById('chromeVersion').textContent = chromeVersion;
+
+        var externalLinks = document.querySelectorAll(".externalLink");
+        for (var i = 0; i < externalLinks.length; i++) {
+            externalLinks[i].addEventListener("click", function (event) {
+                event.preventDefault();
+                var externalLink = event.target.href;
+                shell.openExternal(externalLink);
+            });
+        }
+    </script>
 </body>
 
-<script>
-    const {
-        app,
-        process,
-        shell
-    } = require('electron').remote;
 
-    const appVersion = app.getVersion();
-    document.getElementById('appVersion').textContent = "v " + appVersion;
-    const electronVersion = process.versions.electron;
-    document.getElementById('electronVersion').textContent = electronVersion;
-    const chromeVersion = process.versions.chrome;
-    document.getElementById('chromeVersion').textContent = chromeVersion;
-    var externalLinks = document.querySelectorAll(".externalLink");
-    for (var i = 0; i < externalLinks.length; i++) {
-        externalLinks[i].addEventListener("click", function(event) {
-            event.preventDefault();
-            var externalLink = event.target.href;
-            shell.openExternal(externalLink);
-        });
-    }
-
-</script>
 
 </html>

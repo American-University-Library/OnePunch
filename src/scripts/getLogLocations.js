@@ -1,4 +1,3 @@
-const SettingsScript = require('./settings_script');
 const NetworkStrategy = require('./networkStrategy');
 const GoogleStrategy = require('./googleStrategy');
 const OfficeStrategy = require('./officeStrategy');
@@ -12,6 +11,7 @@ module.exports = {
     // as of 1.4.1 only shared drive logging is available
 
     getLogLocations: function(chosenDir, logStrategy) {
+        console.log('in get log',chosenDir,logStrategy)
         return new Promise(function (resolve, reject) {
             if (logStrategy === "network") {
                 NetworkStrategy.getLogLocation(chosenDir).then(function (logPath) {

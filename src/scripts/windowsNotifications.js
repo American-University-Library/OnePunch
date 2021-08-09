@@ -3,19 +3,24 @@
 // and reading the users system to pick the correct notification style
 // the fix ended up being to explicitly declare the appId in the main.js file
 // I've left open the potential for falling back on the secondary notifications if needed in the future
-const SettingsScript = require('./settings_script');
 
-const os = require('os');
+/* const os = require('os');
 const osRelease = os.release();
 const osReleaseArray = osRelease.split(".");
-const osReleaseNum = osReleaseArray[2];
+const osReleaseNum = osReleaseArray[2]; */
 
 module.exports = {
 
-    notify: function (notificationTitle, notificationText, icon, hangTime, altNotifications) {
+    notify: function (notificationTitle, notificationText, icon, hangTime, altNotifications,window) {
+
+        //altNotifications = true;
+
+        console.log('notify params',notificationTitle, notificationText, icon, hangTime, altNotifications,window)
         const iconPath = '../images/' + icon;
         if (altNotifications) {
-            var ipc = require("electron").ipcRenderer;
+
+            console.log('in alt')
+            
             var msg = {
                 title: notificationTitle,
                 message: notificationText,
@@ -24,7 +29,7 @@ module.exports = {
                 timeout: hangTime,
                 icon: iconPath
             };
-            ipc.send('electron-toaster-message', msg);
+            window.preload.send('electron-toaster-message', msg);
         } else {
             console.log('In notifier')
             const options = {

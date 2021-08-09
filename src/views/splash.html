@@ -20,17 +20,9 @@
             <p style="text-align: center;font-family: monospace;" id='appVersion'><strong></strong></p>
         </div>
     </div>
+    <script>
+        const appVersion = window.preload.getVersion();
+        document.getElementById('appVersion').textContent = 'v ' + appVersion;
+    </script>
 </body>
-
-<script>
-
-    const {
-        app
-    } = require('electron').remote;
-
-    const appVersion = app.getVersion();
-    document.getElementById('appVersion').textContent = 'v ' + appVersion;
-
-</script>
-
 </html>

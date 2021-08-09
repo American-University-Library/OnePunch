@@ -12,12 +12,13 @@ const {
     Notification
 } = require('electron');
 
+const settings = require('electron-settings');
+
 const url = require('url');
 const path = require('path');
 const {
     autoUpdater
 } = require("electron-updater");
-const SettingsScript = require('./scripts/settings_script');
 const Reminders = require('./scripts/reminders');
 const os = require('os');
 app.preventExit = true;
@@ -67,11 +68,6 @@ if (!gotTheLock) {
     })
 }
 
-
-
-
-
-
 function createSplashScreen() {
     let splashScreen;
 
@@ -80,19 +76,22 @@ function createSplashScreen() {
     splashScreen = new BrowserWindow({
         width: 300,
         height: 300,
-        frame: false,
-        resizable: false,
+        frame: true,
+        resizable: true,
         center: true,
-        maximizable: false,
-        fullscreenable: false,
+        maximizable: true,
+        fullscreenable: true,
         title: "OnePunch",
         icon: iconpath,
         show: false,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: false,
+            preload: path.join(__dirname, 'scripts/preload.js'),
+            enableRemoteModule: true
         }
     });
 
+    splashScreen.webContents.openDevTools()
 
     splashScreen.loadURL(url.format({
         pathname: path.join(__dirname, '/views/splash.html'),
@@ -131,7 +130,9 @@ function createUpdateSummaryWindow() {
         icon: iconpath,
         show: false,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: false,
+            preload: path.join(__dirname, 'scripts/preload.js'),
+            enableRemoteModule: true
         }
     });
 
@@ -142,9 +143,9 @@ function createUpdateSummaryWindow() {
         slashes: true
     }));
 
-    updateSummary.once('ready-to-show', () => {
+    updateSummary.once('ready-to-show', async () => {
         updateSummary.show();
-        SettingsScript.saveSetting('showUpdateSummary', false);
+        await settings.set('showUpdateSummary', false);
     });
 
 
@@ -170,7 +171,9 @@ function createAboutWindow() {
         icon: iconpath,
         show: false,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: false,
+            preload: path.join(__dirname, 'scripts/preload.js'),
+            enableRemoteModule: true
         }
     });
 
@@ -199,19 +202,23 @@ function createOwlChoiceWindow() {
 
     owlChoice = new BrowserWindow({
         useContentSize: true,
-        resizable: false,
+        resizable: true,
         center: true,
-        maximizable: false,
-        fullscreenable: false,
+        maximizable: true,
+        fullscreenable: true,
         title: "OnePunch",
         icon: iconpath,
         width: 580,
         height: 750,
         show: false,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: false,
+            preload: path.join(__dirname, 'scripts/preload.js'),
+            enableRemoteModule: true
         }
     });
+
+    owlChoice.webContents.openDevTools()
 
     owlChoice.loadURL(url.format({
         pathname: path.join(__dirname, '/views/owlChoice.html'),
@@ -242,17 +249,22 @@ function createRemindersWindow() {
         remindersWindow = new BrowserWindow({
             width: 350,
             height: 475,
-            resizable: false,
+            resizable: true,
             show: true,
             center: true,
-            maximizable: false,
-            fullscreenable: false,
+            maximizable: true,
+            fullscreenable: true,
             title: "OnePunch",
             icon: iconpath,
             webPreferences: {
-                nodeIntegration: true
+                nodeIntegration: false,
+                preload: path.join(__dirname, 'scripts/preload.js'),
+                enableRemoteModule: true
             }
         });
+
+        remindersWindow.webContents.openDevTools()
+
         remindersWindow.loadURL(url.format({
             pathname: path.join(__dirname, '/views/reminder.html'),
             protocol: 'file:',
@@ -278,14 +290,20 @@ function createSettingsWindow() {
         resizable: true,
         show: true,
         center: true,
-        maximizable: false,
-        fullscreenable: false,
+        maximizable: true,
+        fullscreenable: true,
         title: "OnePunch",
         icon: iconpath,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: false,
+            //preload: path.join(app.getAppPath(), 'src/scripts/preload.js'),
+            preload: path.join(__dirname, 'scripts/preload.js'),
+            enableRemoteModule: true
         }
     });
+
+    settingsWindow.webContents.openDevTools()
+
     settingsWindow.loadURL(url.format({
         pathname: path.join(__dirname, '/views/settings.html'),
         protocol: 'file:',
@@ -309,7 +327,9 @@ function createMainWindow() {
         title: "OnePunch",
         icon: iconpath,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: false,
+            preload: path.join(__dirname, 'scripts/preload.js'),
+            enableRemoteModule: true
         }
     });
 
@@ -350,14 +370,13 @@ app.on('ready', function () {
     // set up the timeout loop for notifcations
     // launch the splash screen and main window
     // check for updates
-    SettingsScript.getSetting().then(function (returnedSettings) {
+    settings.get().then(function (returnedSettings) {
         console.log(returnedSettings)
         const altNotifications = returnedSettings.altNotifications || false;
         if (returnedSettings.initialized) {
             if (returnedSettings.reminders == "notifications" || returnedSettings.reminders == "popups") {
                 loopReminders(returnedSettings);
             }
-            
             createSplashScreen();
             createMainWindow()
             // autoUpdater.checkForUpdates();
@@ -398,7 +417,7 @@ app.on('ready', function () {
                 }
             ]);
 
-            tray.setToolTip('This is my application.')
+            tray.setToolTip('OnePunch')
             tray.setContextMenu(contextMenu)
 
             tray.on('click', function () {
@@ -442,7 +461,7 @@ autoUpdater.on('update-downloaded', () => {
         icon: iconpath,
         title: "OnePunch Updates"
     }, () => {
-        SettingsScript.saveSetting('showUpdateSummary', true).then(function (returnedSettings) {
+        settings.set('showUpdateSummary', true).then(function (returnedSettings) {
             app.preventExit = false;
             setImmediate(() => autoUpdater.quitAndInstall(true, true));
         });
@@ -465,8 +484,8 @@ function loopReminders(returnedSettings) {
     // the commented interval between 10 and 20 seconds is left in for testing
     let reminderLagMinutes = Math.floor(Math.random() * (80 - 40 + 1) + 40);
     let reminderLagMs = 1000 * 60 * reminderLagMinutes;
-    //let reminderLagMinutes = Math.floor(Math.random() * (20 - 10 + 1) + 10);
-    //let reminderLagMs = 1000 * reminderLagMinutes;
+    // let reminderLagMinutes = Math.floor(Math.random() * (20 - 10 + 1) + 10);
+    // let reminderLagMs = 1000 * reminderLagMinutes;
     remindersTimeout = setTimeout(function () {
         genReminders(returnedSettings);
         loopReminders(returnedSettings);
@@ -475,7 +494,7 @@ function loopReminders(returnedSettings) {
 
 // notification reminders are managed from the main process
 function createNotificationReminder() {
-    SettingsScript.getSetting()
+    settings.get()
         .then(function (returnedSettings) {
             Reminders.getDailyPunches(returnedSettings).then(function (dailyPunchCountObj) {
                 dailyPunchCountObj.assumeDisconnected = returnedSettings.assumeDisconnected;
@@ -492,7 +511,7 @@ function createNotificationReminder() {
 
 // after initial settings are loaded the app runs through the same events as a regular startup
 ipcMain.on('settingsComplete', (event, arg) => {
-    SettingsScript.getSetting().then(function (returnedSettings) {
+    settings.get().then(function (returnedSettings) {
         if (returnedSettings.initialized) {
             if (returnedSettings.reminders == "notifications" || returnedSettings.reminders == "popups") {
                 loopReminders(returnedSettings);
@@ -500,7 +519,7 @@ ipcMain.on('settingsComplete', (event, arg) => {
             createSplashScreen();
             createMainWindow();
             settingsWindow.close();
-            autoUpdater.checkForUpdates();
+            // autoUpdater.checkForUpdates();
             if (returnedSettings.showUpdateSummary) {
                 createUpdateSummaryWindow();
             }
@@ -513,7 +532,7 @@ ipcMain.on('settingsComplete', (event, arg) => {
 // when the notification settings are changed, eliminate the prior timeout before setting a new one
 
 ipcMain.on('remindersChanged', () => {
-    SettingsScript.getSetting().then(function (returnedSettings) {
+    settings.get().then(function (returnedSettings) {
         if (typeof remindersTimeout !== 'undefined') {
             clearTimeout(remindersTimeout);
         }
@@ -548,6 +567,7 @@ ipcMain.on('showAboutWindow', function (event) {
 // after a new owl is picked message comes here to close the window
 // and then goes back to the main window to change the image
 ipcMain.on('owlSelected', function (event, selectedOwl) {
+    console.log('in main', selectedOwl)
     owlChoice.close();
     mainWindow.webContents.send('newOwl', selectedOwl);
 });
@@ -570,7 +590,8 @@ var showToaster = function (msg) {
             nodeIntegration: true
         }
     });
-    var timer, height, width;
+
+    var timer, height, width, closeTimer;
     var screen = electron.screen;
     var pos = mainWindow.getPosition();
     var display = screen.getDisplayNearestPoint({
@@ -580,6 +601,7 @@ var showToaster = function (msg) {
     this.window.on('closed', function () {
         try {
             clearTimeout(timer);
+            clearTimeout(closeTimer)
             self.window = null;
         } catch (e) {}
     });
@@ -598,6 +620,9 @@ var showToaster = function (msg) {
                 moveWindow(display.workAreaSize.height - i, function () {
                     if (i === Math.round(height / 10)) { // show after first pos set to avoid flicker.
                         self.window.show();
+                        closeTimer = setTimeout(function () {
+                            self.window.close();
+                        }, 1500);
                     }
                     slideUp(cb);
                 });

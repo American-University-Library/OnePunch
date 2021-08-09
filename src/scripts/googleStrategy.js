@@ -4,7 +4,6 @@
 
 const WindowsNotifications = require("./windowsNotifications");
 const SaveLocalLog = require("./saveLocalLog");
-const SettingsScript = require('./settings_script');
 
 module.exports = {
 

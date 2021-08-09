@@ -5,7 +5,7 @@
     <title>OnePunch</title>
     <meta charset="utf-8">
 
-    <link rel="stylesheet" type="text/css" href="../style/pikaday.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css">
     <link rel="stylesheet" type="text/css" href="../style/semantic.min.css">
     <link rel="stylesheet" type="text/css" href="../style/style.css">
 </head>
@@ -100,7 +100,7 @@
                 <input type="radio" name="strategy" value="network" class="ui radio checkbox" checked>
                 <label for="network">Network</label>
             </div>
-            <div class="field">
+            <div class="field" style="display:none;">
                 <input type="radio" name="strategy" value="cloud" class="ui radio checkbox">
                 <label for="cloud">Cloud</label>
             </div>
@@ -241,26 +241,12 @@
             <label>Enable Alt Notifications</label>
         </div>
 
-        <hr style="width: 80%;">
-
-        
-        <div class="fourteen wide column">
-            <h2 class="tooltip">Desk<span class="tooltiptext">Use the same name for all computers at the same
-                    desk.</span></h2>
-        </div>
-        <div class="twelve wide column">
-            <div class="ui input large">
-                <input id="deskPicker" class="ui input large" name="userSetting" type="text"
-                    placeholder="Enter desk name" />
-            </div>
-        </div>
         <div class="twelve wide column" style="padding: 20px 0px 5px 0px;">
             <button id="saveBtn" class="fluid ui purple button">Save</button>
         </div>
     </div>
-    <script>
-        require('../index.js')
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js"></script>
+    <script src="../index.js"></script>
 </body>
 
 </html>

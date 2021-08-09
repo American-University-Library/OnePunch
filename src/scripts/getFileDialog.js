@@ -1,6 +1,7 @@
-const {
-    dialog
-} = require('electron').remote
+const { remote } = require('electron');
+console.log(remote);
+const { dialog } = remote;
+console.log(dialog)
 
 // opens a folder picker. Returns the chosen folder
 // note that this is for picking folders and not files

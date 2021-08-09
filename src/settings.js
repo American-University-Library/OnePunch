@@ -1,25 +1,14 @@
 // Load library
-const SettingsScript = require("./scripts/settings_script");
-const GetLogLocations = require("./scripts/getLogLocations");
-const FileDialog = require("./scripts/getFileDialog");
+//const GetLogLocations = window.preload.GetLogLocations;
+//const FileDialog = window.preload.FileDialog;
 
-const {
-    ipcRenderer,
-    remote
-} = require('electron');
-const {
-    dialog,
-    screen
-} = require('electron').remote
-var main = remote.require("./main.js");
-const path = require('path');
-const iconpath = path.join(__dirname, '/images/owl_ico_16.png');
-const warnIconPath = path.join(__dirname, '/images/exclamation_mark_64.png');
+const iconpath = window.preload.getIconPath();
+const warnIconPath = window.preload.getWarnIconPath();
 
 // add listeners to page elements
 
 document.getElementById("networkPicker").addEventListener("click", function () {
-    FileDialog.getFolder().then(function (chosenDir) {
+    window.preload.FileDialog().then(function (chosenDir) {
         document.getElementById('logFolderName').textContent = chosenDir;
         document.getElementById("logPath").value = chosenDir;
         document.getElementById("logStrategy").value = "network";
@@ -50,30 +39,33 @@ document.getElementById("saveBtn").addEventListener("click", function () {
     let altNotifications = document.getElementById('altNotifications').checked;
     let settingsObj = {};
     if (deskName != "" && chosenDir != "") {
-        GetLogLocations.getLogLocations(chosenDir, logStrategy).then(function (logPath) {
-            SettingsScript.saveSetting('logPath', logPath)
+        console.log(1)
+        window.preload.GetLogLocations(chosenDir, logStrategy).then(function (logPath) {
+            console.log(21)
+            window.preload.setSetting('logPath', logPath)
                 .then(function (settingSaved) {
-                    return SettingsScript.saveSetting('deskName', deskName);
+                    console.log(2)
+                    return window.preload.setSetting('deskName', deskName);
                 }).then(function (settingSaved) {
-                    return SettingsScript.saveSetting('hotKey', hotKeyChoice);
+                    return window.preload.setSetting('hotKey', hotKeyChoice);
                 }).then(function (settingSaved) {
-                    return SettingsScript.saveSetting('logStrategy', logStrategy);
+                    return window.preload.setSetting('logStrategy', logStrategy);
                 }).then(function (settingSaved) {
-                    return SettingsScript.saveSetting('reminders', remindersChoice);
+                    return window.preload.setSetting('reminders', remindersChoice);
                 }).then(function (settingSaved) {
-                    return SettingsScript.saveSetting('assumeDisconnected', assumeDisconnected);
+                    return window.preload.setSetting('assumeDisconnected', assumeDisconnected);
                 }).then(function (settingSaved) {
-                    return SettingsScript.saveSetting('altNotifications', altNotifications);
+                    return window.preload.setSetting('altNotifications', altNotifications);
                 }).then(function (settingSaved) {
-                    return SettingsScript.saveSetting('initialized', true);
+                    return window.preload.setSetting('initialized', true);
                 }).then(function (settingSaved) {
-                    ipcRenderer.send('settingsComplete');
+                    window.preload.send('settingsComplete');
                 }).catch(function (error) {
                     console.log("Failed!", error);
                 });
         });
     } else {
-        dialog.showMessageBox({
+        window.preload.showMessageBox({
             message: "Please choose your settings",
             buttons: ["OK"],
             type: "info",

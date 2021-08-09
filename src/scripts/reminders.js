@@ -2,7 +2,6 @@ const NetworkStrategy = require('./networkStrategy');
 const GoogleStrategy = require('./googleStrategy');
 const OfficeStrategy = require('./officeStrategy');
 const CloudStrategy = require('./cloudStrategy');
-const SettingsScript = require('./settings_script');
 
 
 module.exports = {

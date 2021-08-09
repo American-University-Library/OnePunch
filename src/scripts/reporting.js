@@ -1,10 +1,9 @@
 const fs = require('fs');
-const SettingsScript = require('./settings_script');
 const NetworkStrategy = require('./networkStrategy');
 const GoogleStrategy = require('./googleStrategy');
 const OfficeStrategy = require('./officeStrategy');
 const CloudStrategy = require('./cloudStrategy');
-const WindowsNotifications = require("./windowsNotifications");
+const { settings } = require('cluster');
 
 
 module.exports = {
@@ -12,12 +11,14 @@ module.exports = {
     // Basic flow: get the unsorted data, sort it, total it by day and/or hour, save it to a csv file
     // right now this doesn't overwrite file, so if there's a previously existing report it will just append this info
 
-    generateReport: function (startDate, endDate, showDetailByDesk, showDetailByHour, savePath) {
+    generateReport: function (startDate, endDate, showDetailByDesk, showDetailByHour, savePath,window) {
         return new Promise(function (resolve, reject) {
-            SettingsScript.getSetting()
-                .then(function (returnedSettings) {
+            let returnedSettings;
+            window.preload.getSettings()
+                .then(function (settings) {
+                    returnedSettings = {...settings}
                     if (returnedSettings.logStrategy === "network") {
-                        return NetworkStrategy.getReportData(startDate, endDate, showDetailByDesk, showDetailByHour, returnedSettings);
+                        return NetworkStrategy.getReportData(startDate, endDate, showDetailByDesk, showDetailByHour, returnedSettings,window);
                     } else if (returnedSettings.logStrategy === "google") {
                         return GoogleStrategy.getReportData(startDate, endDate, showDetailByDesk, showDetailByHour, returnedSettings);
                     } else if (returnedSettings.logStrategy === "office") {
@@ -35,7 +36,7 @@ module.exports = {
                     resolve(reportingComplete);
                 }).catch(function (error) {
                     if (error === "connection error") {
-                        WindowsNotifications.notify("Cannot connect!", "Please connect to network drive", "exclamation_mark_64.png", 3500, returnedSettings.altNotifications);
+                        window.preload.WindowsNotifications("Cannot connect!", "Please connect to network drive", "exclamation_mark_64.png", 3500, returnedSettings.altNotifications,window);
                     }
                 });
         });

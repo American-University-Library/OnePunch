@@ -1,20 +1,15 @@
-const SettingsScript = require('./scripts/settings_script');
-const Reminders = require('./scripts/reminders')
-const {
-    ipcRenderer
-} = require('electron');
-
 updateCount();
 
-
-ipcRenderer.on('updateCount', (event, owlPicked) => {
+window.preload.on('updateCount', (owlPicked) => {
+    console.log('received message in reminders window')
     updateCount();
 });
 
 function updateCount() {
-    SettingsScript.getSetting()
+    window.preload.getSettings()
         .then(function (returnedSettings) {
-            Reminders.getDailyPunches(returnedSettings).then(function (dailyPunchCountObj) {
+            console.log('update count func in reminderd window', 'settings', returnedSettings)
+            window.preload.Reminders(returnedSettings).then(function (dailyPunchCountObj) {
                 let selectedIcon = returnedSettings.selectedIcon || "owl_ico";
                 let icon128Path = "../images/" + selectedIcon + "_128.png";
                 document.getElementById("remindersImage").src = icon128Path;

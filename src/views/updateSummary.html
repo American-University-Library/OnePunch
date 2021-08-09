@@ -8,6 +8,7 @@
         li {
             margin: 0 0 10px 0;
         }
+
         p {
             font-size: 18px
         }
@@ -27,20 +28,19 @@
         <div class="fourteen wide column">
             <p style="text-align: center;"><strong>Here's what's changed in <span id="appVersion"></span></strong></p>
             <ul>
-                <li>The return of native notifications! OnePunch now uses Window's notifications and appears in the "Notifications &amp; actions" settings page.</li>
+                <li>The return of native notifications! OnePunch now uses Window's notifications and appears in the
+                    "Notifications &amp; actions" settings page.</li>
                 <li>Pop-up reminders now updates count instead of opening a new window.</li>
                 <li>Miscellaneous bug fixes.</li>
             </ul>
         </div>
     </div>
+    <script>
+        const appVersion = window.preload.getVersion();
+        document.getElementById('appVersion').textContent = appVersion;
+    </script>
 </body>
 
-<script>
-    const {
-        app
-    } = require('electron').remote;
-    const appVersion = app.getVersion();
-    document.getElementById('appVersion').textContent = appVersion;
-</script>
+
 
 </html>

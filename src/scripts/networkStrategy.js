@@ -5,7 +5,9 @@
 const fs = require('fs');
 const WindowsNotifications = require("./windowsNotifications");
 const SaveLocalLog = require("./saveLocalLog");
-const SettingsScript = require('./settings_script');
+//const { settings } = require('cluster');
+
+const settings = require('electron-settings');
 
 module.exports = {
 
@@ -40,7 +42,8 @@ module.exports = {
     },
 
     // actually saves the log
-    enterLog: function (settingsLogObject) {
+    enterLog: function (settingsLogObject,window) {
+        console.log('firing enter log')
         return new Promise(function (resolve, reject) {
             const logPath = settingsLogObject.logPath.primary;
             const secondaryLogPath = settingsLogObject.logPath.secondary;
@@ -85,27 +88,27 @@ module.exports = {
                                         },
                                         function (err) {
                                             if (err) {
-                                                SaveLocalLog.saveLocalLog(settingsLogObject).then(function (logObject) {
+                                                SaveLocalLog.saveLocalLog(settingsLogObject, window).then(function (logObject) {
                                                     if (assumeDisconnected) {
-                                                        WindowsNotifications.notify("Logged!", "Logged to local file!", selectedIconName, 2000, altNotifications)
+                                                        WindowsNotifications.notify("Logged!", "Logged to local file!", selectedIconName, 2000, altNotifications,window)
                                                         resolve(logObject);
                                                     } else {
-                                                        WindowsNotifications.notify("Logged locally!", "Please connect to shared drive.", "exclamation_mark_64.png", 3500, altNotifications);
+                                                        WindowsNotifications.notify("Logged locally!", "Please connect to shared drive.", "exclamation_mark_64.png", 3500, altNotifications,window);
                                                         resolve(logObject);
                                                     }
                                                 });
                                             } else {
-                                                WindowsNotifications.notify("Logged!", "Logged to shared file!", selectedIconName, 2000, altNotifications)
+                                                WindowsNotifications.notify("Logged!", "Logged to shared file!", selectedIconName, 2000, altNotifications,window)
                                                 resolve(logObject);
                                             }
                                         });
                                 } else {
-                                    WindowsNotifications.notify("Logged!", "Logged to shared file!", selectedIconName, 2000, altNotifications)
+                                    WindowsNotifications.notify("Logged!", "Logged to shared file!", selectedIconName, 2000, altNotifications,window)
                                     resolve(logObject);
                                 }
                             });
                     } else {
-                        WindowsNotifications.notify("Logged!", "Logged to shared file", selectedIconName, 2000, altNotifications)
+                        WindowsNotifications.notify("Logged!", "Logged to shared file", selectedIconName, 2000, altNotifications,window)
                         resolve(logObject);
                     }
                 });
@@ -194,7 +197,7 @@ module.exports = {
     },
 
     // returns an unsorted object with all the logs needed for the report as specified by user
-    getReportData: function (startDate, endDate, showDetailByDesk, showDetailByHour, returnedSettings) {
+    getReportData: function (startDate, endDate, showDetailByDesk, showDetailByHour, returnedSettings,window) {
         return new Promise(function (resolve, reject) {
             const jsStartDate = new Date(startDate);
             const jsEndDate = new Date(endDate);
@@ -286,7 +289,7 @@ module.exports = {
     },
 
     // moves all logs saved locally in settings to the shared log location
-    moveLocalText: function (returnedSettings) {
+    moveLocalText: function (returnedSettings,window) {
         return new Promise(function (resolve, reject) {
             const logPath = returnedSettings.logPath.primary;
             const secondaryLogPath = returnedSettings.logPath.secondary;
@@ -334,7 +337,7 @@ module.exports = {
                                                 } else {
                                                     i += 1;
                                                     if (i === len) {
-                                                        SettingsScript.deleteSetting('localLogs').then(function (remainingSettings) {
+                                                        window.preload.deleteSetting('localLogs').then(function (remainingSettings) {
                                                             resolve(len);
                                                         });
                                                     }
@@ -343,7 +346,7 @@ module.exports = {
                                     } else {
                                         i += 1;
                                         if (i === len) {
-                                            SettingsScript.deleteSetting('localLogs').then(function (remainingSettings) {
+                                            window.preload.deleteSetting('localLogs').then(function (remainingSettings) {
                                                 resolve(len);
                                             });
                                         }
@@ -352,7 +355,7 @@ module.exports = {
                         } else {
                             i += 1;
                             if (i === len) {
-                                SettingsScript.deleteSetting('localLogs').then(function (remainingSettings) {
+                                window.preload.deleteSetting('localLogs').then(function (remainingSettings) {
                                     resolve(len);
                                 });
                             }
