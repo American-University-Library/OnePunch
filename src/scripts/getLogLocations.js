@@ -10,23 +10,23 @@ module.exports = {
     // dependent on user settings
     // as of 1.4.1 only shared drive logging is available
 
-    getLogLocations: function(chosenDir, logStrategy) {
-        console.log('in get log',chosenDir,logStrategy)
+    getLogLocations: function(location, logStrategy) {
+        console.log('in get log',location,logStrategy)
         return new Promise(function (resolve, reject) {
             if (logStrategy === "network") {
-                NetworkStrategy.getLogLocation(chosenDir).then(function (logPath) {
+                NetworkStrategy.getLogLocation(location).then(function (logPath) {
                     resolve(logPath);
                 });
             } else if (logStrategy === "google") {
-                GoogleStrategy.getLogLocation(chosenDir).then(function (logPath) {
+                GoogleStrategy.getLogLocation(location).then(function (logPath) {
                     resolve(logPath);
                 });
             } else if (logStrategy === "office") {
-                OfficeStrategy.getLogLocation(chosenDir).then(function (logPath) {
+                OfficeStrategy.getLogLocation(location).then(function (logPath) {
                     resolve(logPath);
                 });
             } else if (logStrategy === "cloud") {
-                CloudStrategy.getLogLocation(chosenDir).then(function (logPath) {
+                CloudStrategy.getLogLocation([location.url, location.key]).then(function (logPath) {
                     resolve(logPath);
                 });
             }

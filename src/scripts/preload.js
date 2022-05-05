@@ -43,7 +43,7 @@ contextBridge.exposeInMainWorld(
         LogText: (window, source) => LogText.logText(window, source),
         MoveLocalText: window => MoveLocalText.moveText(window),
         Reports: (startDate, endDate, showDetailByDesk, showDetailByHour, savePath, window) => Reports.generateReport(startDate, endDate, showDetailByDesk, showDetailByHour, savePath, window),
-        GetLogLocations: (chosenDir, logStrategy) => GetLogLocations.getLogLocations(chosenDir, logStrategy),
+        GetLogLocations: (location, logStrategy) => GetLogLocations.getLogLocations(location, logStrategy),
         FileDialog: () => FileDialog.getFolder(),
         WindowsNotifications: (notificationTitle, notificationText, icon, hangTime, altNotifications, window) => WindowsNotifications.notify(notificationTitle, notificationText, icon, hangTime, altNotifications, window),
         Reminders: (returnedSettings) => Reminders.getDailyPunches(returnedSettings),

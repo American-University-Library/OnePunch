@@ -9,7 +9,7 @@
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "test": "electron . --inspect=5858",
-    "build": "electron-builder -w"  
+    "build": "electron-builder -w"
   },
   "repository": {
     "type": "git",
@@ -19,7 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "electron-settings": "^4.0.2",
-    "electron-updater": "^4.3.9",
+    "electron-updater": "^4.6.5",
     "os": "^0.1.2"
   },
   "build": {
@@ -41,9 +41,9 @@
     }
   },
   "devDependencies": {
-    "electron": "^13.1.8",
-    "electron-builder": "^22.11.7",
-    "electron-packager": "^15.3.0",
+    "electron": "^13.6.9",
+    "electron-builder": "^22.14.13",
+    "electron-packager": "^15.5.1",
     "electron-rebuild": "^2.3.5"
   }
 }
