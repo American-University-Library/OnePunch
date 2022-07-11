@@ -1,252 +1,374 @@
 <!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <title>OnePunch</title>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
 
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css">
-    <link rel="stylesheet" type="text/css" href="../style/semantic.min.css">
-    <link rel="stylesheet" type="text/css" href="../style/style.css">
-</head>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css"
+    />
+    <link rel="stylesheet" type="text/css" href="../style/semantic.min.css" />
+    <link rel="stylesheet" type="text/css" href="../style/style.css" />
+  </head>
 
-<body>
+  <body>
     <div id="menuBar" class="ui buttons fluid">
-        <button value="homeTab" class="tabControl ui button large active" id="homeBtn">Home</button>
-        <button value="reportsTab" class="tabControl ui button large" id="reportsBtn">Reports</button>
-        <button value="settingsTab" class="tabControl ui button large" id="settingsBtn">Settings</button>
+      <button
+        value="homeTab"
+        class="tabControl ui button large active"
+        id="homeBtn"
+      >
+        Home
+      </button>
+      <button
+        value="reportsTab"
+        class="tabControl ui button large"
+        id="reportsBtn"
+      >
+        Reports
+      </button>
+      <button
+        value="settingsTab"
+        class="tabControl ui button large"
+        id="settingsBtn"
+      >
+        Settings
+      </button>
     </div>
     <div id="homeTab" class="tabContent ui grid middle aligned centered">
-        <div class="twelve wide column">
-        </div>
-        <div class="twelve wide column">
-        </div>
-        <div class="twelve wide column main-owl">
-            <a href="#" id="mainOwlIcon"><img class="ui centered image" id="mainOwlIconImage"
-                    src="../images/owl_ico_128.png" alt="One Punch Icon" style="padding: 40px 0px 10px 0px;">
-                <div id="overlayDiv" class="ui centered">
-                    <img class="ui centered image" src="../images/edit.png" alt="One Punch Icon"
-                        style="padding: 40px 0px 10px 0px;">
-                    <p id="overlayText"><strong>Choose a new<br>Owl-vatar!</strong></p>
-                </div>
-            </a>
-        </div>
-        <div class="twelve wide column">
-        </div>
-        <div class="twelve wide column" style="padding: 40px 0px 0px 0px;">
-            <button id="logBtn" class="fluid ui green button">Log!</button>
-        </div>
-        <div class="twelve wide column">
-            <button id="moveLocalBtn" class="fluid ui purple button">Move local logs to shared drive</button>
-        </div>
-        <div class="twelve wide column">
-            <button id="checkTotalsBtn" class="fluid ui pink button">How are we doing today?</button>
-        </div>
+      <div class="twelve wide column"></div>
+      <div class="twelve wide column"></div>
+      <div class="twelve wide column main-owl">
+        <a href="#" id="mainOwlIcon"
+          ><img
+            class="ui centered image"
+            id="mainOwlIconImage"
+            src="../images/owl_ico_128.png"
+            alt="One Punch Icon"
+            style="padding: 40px 0px 10px 0px"
+          />
+          <div id="overlayDiv" class="ui centered">
+            <img
+              class="ui centered image"
+              src="../images/edit.png"
+              alt="One Punch Icon"
+              style="padding: 40px 0px 10px 0px"
+            />
+            <p id="overlayText">
+              <strong>Choose a new<br />Owl-vatar!</strong>
+            </p>
+          </div>
+        </a>
+      </div>
+      <div class="twelve wide column"></div>
+      <div class="twelve wide column" style="padding: 40px 0px 0px 0px">
+        <button id="logBtn" class="fluid ui green button">Log!</button>
+      </div>
+      <div class="twelve wide column">
+        <button id="moveLocalBtn" class="fluid ui purple button">
+          Move local logs to shared drive
+        </button>
+      </div>
+      <div class="twelve wide column">
+        <button id="checkTotalsBtn" class="fluid ui pink button">
+          How are we doing today?
+        </button>
+      </div>
 
-        <div class="fourteen wide column">
-            <p style="text-align: center"><br><br><br><span id="appVersion"></span><br><br><br><a href="#"
-                    id="showAbout">About OnePunch</a></p>
-        </div>
+      <div class="fourteen wide column">
+        <p style="text-align: center">
+          <br /><br /><br /><span id="appVersion"></span><br /><br /><br /><a
+            href="#"
+            id="showAbout"
+            >About OnePunch</a
+          >
+        </p>
+      </div>
     </div>
-    <div id="reportsTab" class="tabContent ui grid middle aligned centered" style="display:none;">
-        <div class="twelve wide column">
-        </div>
-        <div class="fourteen wide column">
-            <h2>Date Range</h2>
-            <p>(inclusive)</p>
-        </div>
-        <div class="twelve wide column ui input large">
-            <input class="datepicker" type="text" id="startDate" placeholder="Pick start date" />
-        </div>
-        <div class="twelve wide column ui input large">
-            <input class="datepicker" type="text" id="endDate" placeholder="Pick end date" />
-        </div>
-        <div class="fourteen wide column">
-            <h2>Detail Level</h2>
-        </div>
-        <div class="ui slider checkbox twelve wide column">
-            <input id="deskCheck" type="checkbox" name="details" checked>
-            <label>By Desk</label>
-        </div>
-        <div class="ui slider checkbox twelve wide column">
-            <input id="hourCheck" type="checkbox" name="details">
-            <label>By Hour</label>
-        </div>
-        <div class="fourteen wide column">
-            <h2>Save Location</h2>
-        </div>
-        <div class="twelve wide column">
-            <span id="saveFolderName">Choose a folder...</span>
-        </div>
-        <div class="twelve wide column">
-            <button id="savePicker" class="ui primary button fluid">Choose</button>
-        </div>
-        <input id="savePath" type="hidden" name="userSetting" value="">
-        <div class="twelve wide column">
-            <button id="generateReportBtn" class="fluid ui purple button">Generate Report</button>
-        </div>
+    <div
+      id="reportsTab"
+      class="tabContent ui grid middle aligned centered"
+      style="display: none"
+    >
+      <div class="twelve wide column"></div>
+      <div class="fourteen wide column">
+        <h2>Date Range</h2>
+        <p>(inclusive)</p>
+      </div>
+      <div class="twelve wide column ui input large">
+        <input
+          class="datepicker"
+          type="text"
+          id="startDate"
+          placeholder="Pick start date"
+        />
+      </div>
+      <div class="twelve wide column ui input large">
+        <input
+          class="datepicker"
+          type="text"
+          id="endDate"
+          placeholder="Pick end date"
+        />
+      </div>
+      <div class="fourteen wide column">
+        <h2>Detail Level</h2>
+      </div>
+      <div class="ui slider checkbox twelve wide column">
+        <input id="deskCheck" type="checkbox" name="details" checked />
+        <label>By Desk</label>
+      </div>
+      <div class="ui slider checkbox twelve wide column">
+        <input id="hourCheck" type="checkbox" name="details" />
+        <label>By Hour</label>
+      </div>
+      <div class="fourteen wide column">
+        <h2>Save Location</h2>
+      </div>
+      <div class="twelve wide column">
+        <span id="saveFolderName">Choose a folder...</span>
+      </div>
+      <div class="twelve wide column">
+        <button id="savePicker" class="ui primary button fluid">Choose</button>
+      </div>
+      <input id="savePath" type="hidden" name="userSetting" value="" />
+      <div class="twelve wide column">
+        <button id="generateReportBtn" class="fluid ui purple button">
+          Generate Report
+        </button>
+      </div>
     </div>
-    <div id="settingsTab" class="tabContent ui grid middle aligned centered" style="display:none;">
 
-
-        
-
-        <div class="fourteen wide column">
-            <h2 class="tooltip">Storage Strategy<span class="tooltiptext">Choose the strategy for saving data.</span>
-            </h2>
+    <div
+      id="settingsTab"
+      class="tabContent ui grid middle aligned centered"
+      style="display: none"
+    >
+      <div class="fourteen wide column">
+        <h2 class="tooltip">
+          Storage Strategy<span class="tooltiptext"
+            >Choose the strategy for saving data.</span
+          >
+        </h2>
+      </div>
+      <div class="twelve wide column">
+        <div class="field">
+          <input
+            type="radio"
+            name="strategy"
+            value="cloud"
+            class="ui radio checkbox"
+          />
+          <label for="cloud">Cloud</label>
         </div>
-        <div class="twelve wide column">
-            <div class="field">
-                <input type="radio" name="strategy" value="network" class="ui radio checkbox" checked>
-                <label for="network">Network</label>
-            </div>
-            <div class="field" style="display:none;">
-                <input type="radio" name="strategy" value="cloud" class="ui radio checkbox">
-                <label for="cloud">Cloud</label>
-            </div>
-            <input id="currentStrategy" type="hidden" name="userSetting" value="">
+        <div class="field">
+          <input
+            type="radio"
+            name="strategy"
+            value="network"
+            class="ui radio checkbox"
+          />
+          <label for="network">Network</label>
         </div>
+        <input id="currentStrategy" type="hidden" name="userSetting" value="" />
+      </div>
 
-
-
-
-
-        <div class="fourteen wide column network storage">
-            <h2 class="tooltip">Data Storage<span class="tooltiptext">The shared location where interactions will be
-                    logged. Be sure to pick the same folder for all the computers in your unit.</span></h2>
+      <div class="fourteen wide column network storage" style="">
+        <h2 class="tooltip">
+          Data Storage<span class="tooltiptext"
+            >The shared location where interactions will be logged. Be sure to
+            pick the same folder for all the computers in your unit.</span
+          >
+        </h2>
+      </div>
+      <div class="twelve wide column network storage" style="">
+        <button id="networkPicker" class="ui primary button fluid">
+          Choose Network Directory
+        </button>
+      </div>
+      <div class="twelve wide column network storage">
+        <div class="ui input large">
+          <input
+            id="deskPicker"
+            class="ui input large"
+            name="userSetting"
+            type="text"
+            placeholder="Enter desk name"
+          />
         </div>
-        <div class="twelve wide column network storage">
-            <span id="logFolderName">Choose where you'd like to save logs</span>
+      </div>
+
+      <div class="fourteen wide column cloud storage" style="">
+        <h2 class="tooltip">
+          Data Storage<span class="tooltiptext"
+            >The server where logs of interactions will be sent. Talk to your
+            systems administrator if you don't have an API key.</span
+          >
+        </h2>
+      </div>
+      <div class="twelve wide column cloud storage" style="">
+        <div class="ui input large">
+          <input
+            id="cloudPath"
+            class="ui input large"
+            name="userSetting"
+            type="text"
+            placeholder="Enter https address"
+          />
         </div>
-        <div class="twelve wide column network storage">
-            <button id="networkPicker" class="ui primary button fluid">Choose Network Directory</button>
-            <button id="googlePicker" class="ui primary button fluid" style="display:none;">Choose Google</button>
-            <button id="officePicker" class="ui primary button fluid" style="display:none;">Choose Office</button>
+      </div>
+      <div class="twelve wide column cloud storage" style="">
+        <div class="ui input large">
+          <input
+            id="cloudAuth"
+            class="ui input large"
+            name="userSetting"
+            type="text"
+            placeholder="Enter API Key"
+          />
         </div>
-        <div class="fourteen wide column cloud storage" style="display:none;">
-            <h2 class="tooltip">Data Storage<span class="tooltiptext">Enter the https address for your cloud data
-                    storage.</span></h2>
+      </div>
+      <div class="twelve wide column cloud storage" style="">
+        <button id="validateBtn" class="ui primary button fluid">
+          Validate and Save
+        </button>
+      </div>
+
+      <input id="logPath" type="hidden" name="userSetting" value="" />
+      <input id="logStrategy" type="hidden" name="userSetting" value="" />
+
+      <hr style="width: 80%" />
+      <div class="fourteen wide column">
+        <h2 class="tooltip">
+          HotKey<span class="tooltiptext"
+            >Only one program is allowed to use a single hotkey at once. Be
+            careful not to choose a key that's already being used
+            elsewhere.</span
+          >
+        </h2>
+      </div>
+      <div class="twelve wide column">
+        <div class="field">
+          <input
+            type="radio"
+            name="hotKey"
+            value="F9"
+            id="F9"
+            class="ui radio checkbox"
+            checked
+          />
+          <label for="F9">F9</label>
         </div>
-        <div class="twelve wide column cloud storage" style="display:none;">
-            <div class="ui input large">
-                <input id="cloudPath" class="ui input large" name="userSetting" type="text"
-                    placeholder="Enter https address" />
-            </div>
+        <div class="field">
+          <input
+            type="radio"
+            name="hotKey"
+            value="Ctrl+F9"
+            id="ctrlF9"
+            class="ui radio checkbox"
+          />
+          <label for="ctrlF9">Ctrl + F9</label>
         </div>
-        <div class="fourteen wide column cloud storage" style="display:none;">
-            <h2 class="tooltip">API Key<span class="tooltiptext">Enter the API key generated for your storage.</span>
-            </h2>
+        <div class="field">
+          <input
+            type="radio"
+            name="hotKey"
+            value="Ctrl+Alt+F9"
+            id="ctrlAltF9"
+            class="ui radio checkbox"
+          />
+          <label for="ctrlAltF9">Ctrl + Alt + F9</label>
         </div>
-        <div class="twelve wide column cloud storage" style="display:none;">
-            <div class="ui input large">
-                <input id="cloudAuth" class="ui input large" name="userSetting" type="text"
-                    placeholder="Enter API Key" />
-            </div>
+        <input id="currentHotKey" type="hidden" name="userSetting" value="" />
+      </div>
+
+      <hr style="width: 80%" />
+
+      <div class="fourteen wide column">
+        <h2 class="tooltip">
+          Reminders<span class="tooltiptext"
+            >Reminders will show about once an hour letting you know how many
+            people your desk has helped that day. Popups are a new window in the
+            center of the screen; notifications display in the lower
+            corner.</span
+          >
+        </h2>
+      </div>
+      <div class="twelve wide column">
+        <div class="field">
+          <input
+            type="radio"
+            name="reminders"
+            value="false"
+            id="noReminders"
+            class="ui radio checkbox"
+            checked
+          />
+          <label for="">None</label>
         </div>
-
-        <div class="twelve wide column cloud storage" style="display:none;">
-            <button id="validateBtn" class="fluid ui green button">Validate</button>
+        <div class="field">
+          <input
+            type="radio"
+            name="reminders"
+            value="notifications"
+            id="notifyReminders"
+            class="ui radio checkbox"
+          />
+          <label for="notifyReminders">Notifications</label>
         </div>
-
-
-
-
-        <input id="logPath" type="hidden" name="userSetting" value="">
-        <input id="logAuth" type="hidden" name="userSetting" value="">
-        <input id="logStrategy" type="hidden" name="userSetting" value="">
-        <hr style="width: 80%;">
-
-
-
-
-
-        <div class="fourteen wide column">
-            <h2 class="tooltip">Desk<span class="tooltiptext">Use the same name for all computers at the same
-                    desk.</span></h2>
+        <div class="field">
+          <input
+            type="radio"
+            name="reminders"
+            value="popups"
+            id="popUpReminders"
+            class="ui radio checkbox"
+          />
+          <label for="ctrlAltF9">Pop-Ups</label>
         </div>
-        <div class="twelve wide column">
-            <div class="ui input large">
-                <input id="deskPicker" class="ui input large" name="userSetting" type="text"
-                    placeholder="Enter desk name" />
-            </div>
-        </div>
+      </div>
 
+      <hr style="width: 80%" />
 
-        <hr style="width: 80%;">
+      <div class="fourteen wide column">
+        <h2 class="tooltip">
+          Connection Status<span class="tooltiptext"
+            >This setting reduces connection error warnings. Use it for desks
+            that won't usually be connected to the shared drive.</span
+          >
+        </h2>
+      </div>
+      <div class="ui slider checkbox twelve wide column">
+        <input
+          id="assumeDisconnectedCheck"
+          type="checkbox"
+          name="assumeDisconnected"
+        />
+        <label>Assume no connection</label>
+      </div>
 
+      <hr style="width: 80%" />
 
-        <div class="fourteen wide column">
-            <h2 class="tooltip">HotKey<span class="tooltiptext">Only one program is allowed to use a single hotkey at
-                    once. Be careful not to choose a key that's already being used elsewhere.</span></h2>
-        </div>
-        <div class="twelve wide column">
-            <div class="field">
-                <input type="radio" name="hotKey" value="F9" id="F9" class="ui radio checkbox" checked>
-                <label for="F9">F9</label>
-            </div>
-            <div class="field">
-                <input type="radio" name="hotKey" value="Ctrl+F9" id="ctrlF9" class="ui radio checkbox">
-                <label for="ctrlF9">Ctrl + F9</label>
-            </div>
-            <div class="field">
-                <input type="radio" name="hotKey" value="Ctrl+Alt+F9" id="ctrlAltF9" class="ui radio checkbox">
-                <label for="ctrlAltF9">Ctrl + Alt + F9</label>
-            </div>
-            <input id="currentHotKey" type="hidden" name="userSetting" value="">
-        </div>
+      <div class="fourteen wide column">
+        <h2 class="tooltip">
+          Alt Notifications<span class="tooltiptext"
+            >This setting enables an alternative method for notification that
+            might be needed depending on your Windows version.</span
+          >
+        </h2>
+      </div>
+      <div class="ui slider checkbox twelve wide column">
+        <input id="altNotifications" type="checkbox" name="details" />
+        <label>Enable Alt Notifications</label>
+      </div>
 
-        <hr style="width: 80%;">
-
-        <div class="fourteen wide column">
-            <h2 class="tooltip">Reminders<span class="tooltiptext">Reminders will show about once an hour letting you
-                    know how many people your desk has helped that day. Popups are a new window in the center of the
-                    screen; notifications display in the lower corner.</span></h2>
-        </div>
-        <div class="twelve wide column">
-            <div class="field">
-                <input type="radio" name="reminders" value=false id="noReminders" class="ui radio checkbox" checked>
-                <label for="">None</label>
-            </div>
-            <div class="field">
-                <input type="radio" name="reminders" value="notifications" id="notifyReminders"
-                    class="ui radio checkbox">
-                <label for="notifyReminders">Notifications</label>
-            </div>
-            <div class="field">
-                <input type="radio" name="reminders" value="popups" id="popUpReminders" class="ui radio checkbox">
-                <label for="ctrlAltF9">Pop-Ups</label>
-            </div>
-        </div>
-
-        <hr style="width: 80%;">
-
-
-        <div class="fourteen wide column">
-            <h2 class="tooltip">Connection Status<span class="tooltiptext">This setting reduces connection error
-                    warnings. Use it for desks that won't usually be connected to the shared drive.</span></h2>
-        </div>
-        <div class="ui slider checkbox twelve wide column">
-            <input id="assumeDisconnectedCheck" type="checkbox" name="assumeDisconnected">
-            <label>Assume no connection</label>
-        </div>
-
-        <hr style="width: 80%;">
-
-        <div class="fourteen wide column">
-            <h2 class="tooltip">Alt Notifications<span class="tooltiptext">This setting enables an alternative method
-                    for notification that might be needed depending on your Windows version.</span></h2>
-        </div>
-        <div class="ui slider checkbox twelve wide column">
-            <input id="altNotifications" type="checkbox" name="details">
-            <label>Enable Alt Notifications</label>
-        </div>
-
-        <div class="twelve wide column" style="padding: 20px 0px 5px 0px;">
-            <button id="saveBtn" class="fluid ui purple button">Save</button>
-        </div>
+      <div class="twelve wide column" style="padding: 20px 0px 5px 0px">
+        <button id="saveBtn" class="fluid ui purple button">Save</button>
+      </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js"></script>
     <script src="../index.js"></script>
-</body>
-
+  </body>
 </html>
