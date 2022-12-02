@@ -69,7 +69,7 @@ module.exports = {
                     } else if (settingsLogObject.logStrategy === "office") {
                         return OfficeStrategy.enterLog(settingsLogObject);
                     } else if (settingsLogObject.logStrategy === "cloud") {
-                        return CloudStrategy.enterLog(settingsLogObject);
+                        return CloudStrategy.enterLog(settingsLogObject, window);
                     }
                 }).then(function (logObject) {
                     resolve(logObject);

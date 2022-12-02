@@ -9,19 +9,20 @@ module.exports = {
   //whatever is needed to turn the users chosen save location into the info needed for settings file
   getLogLocation: function ([url, key]) {
     return new Promise(function (resolve, reject) {
-      resolve(url + "api_key=" + key);
+      resolve(url + "?key=" + key);
     });
   },
 
   // actually saves the log
-  enterLog: function (settingsLogObject) {
-    return new Promise(function (resolve, reject) {
+  enterLog: function (settingsLogObject, window) {
+    return new Promise(async (resolve, reject) => {
       try {
         const logObject = settingsLogObject.logObject;
         const assumeDisconnected = settingsLogObject.assumeDisconnected;
         const selectedIcon = settingsLogObject.selectedIcon || "owl_ico";
         const selectedIconName = selectedIcon + "_64.png";
-        const altNotifications = settingsLogObject.altNotifications || false;
+        // const altNotifications = settingsLogObject.altNotifications || false;
+        const altNotifications = false;
         const currentWeekday = logObject.currentWeekday;
         const currentMonth = logObject.currentMonth;
         const currentDateString = logObject.currentDateString;
@@ -44,10 +45,14 @@ module.exports = {
           "," +
           deskName +
           "\r\n";
-        // perform fetch
-        console.log(settingsLogObject);
+        console.log('about to post')
+        const response = await window.preload.postLog();
+        console.log('cloud strategy', response)
+        console.log('cloud', settingsLogObject);
+        WindowsNotifications.notify("Logged!", "Logged to shared file", selectedIconName, 2000, altNotifications,window)
         resolve(logObject);
       } catch (err) {
+        console.log('cloud post err', err)
         SaveLocalLog.saveLocalLog(settingsLogObject, window).then(function (
           logObject
         ) {
@@ -82,7 +87,7 @@ module.exports = {
     return new Promise(function (resolve, reject) {
       console.log(returnedSettings);
       // get the number of punches today
-      resolve(1);
+      resolve(returnedSettings);
     });
   },
 

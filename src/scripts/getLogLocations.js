@@ -26,7 +26,8 @@ module.exports = {
                     resolve(logPath);
                 });
             } else if (logStrategy === "cloud") {
-                CloudStrategy.getLogLocation([location.url, location.key]).then(function (logPath) {
+                CloudStrategy.getLogLocation(location).then(function (logPath) {
+                    console.log(location, "log path", logPath)
                     resolve(logPath);
                 });
             }

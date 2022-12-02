@@ -13,6 +13,7 @@ const {
 } = require('electron');
 
 const settings = require('electron-settings');
+const axios = require('axios');
 
 const url = require('url');
 const path = require('path');
@@ -383,38 +384,38 @@ app.on('ready', function () {
 
             tray = new Tray(iconpath)
             const contextMenu = Menu.buildFromTemplate([{
-                    label: 'How are we doing today?',
-                    click: function () {
-                        // This allows for an alternate style of non native notifications
-                        //it was briefly needed after a windows updated prevented native notifications
-                        //It's being left in to guard against a similar problem in the future
-                        let osRelease = os.release();
-                        let osReleaseArray = osRelease.split(".");
-                        let osReleaseNum = osReleaseArray[2];
-                        if (/*osReleaseNum >= 16000 ||*/altNotifications) {
-                            console.log('In alt notifications')
-                            createRemindersWindow();
-                        } else {
-                            console.log('In regular notifications')
-                            createNotificationReminder();
-                        }
-                    }
-                },
-                {
-                    label: 'Open OnePunch',
-                    click: function () {
-                        mainWindow.show();
-                    }
-                },
-                {
-                    label: 'Quit',
-                    click: function () {
-                        app.isQuiting = true;
-                        app.preventExit = false;
-                        app.quit();
-
+                label: 'How are we doing today?',
+                click: function () {
+                    // This allows for an alternate style of non native notifications
+                    //it was briefly needed after a windows updated prevented native notifications
+                    //It's being left in to guard against a similar problem in the future
+                    let osRelease = os.release();
+                    let osReleaseArray = osRelease.split(".");
+                    let osReleaseNum = osReleaseArray[2];
+                    if (/*osReleaseNum >= 16000 ||*/altNotifications) {
+                        console.log('In alt notifications')
+                        createRemindersWindow();
+                    } else {
+                        console.log('In regular notifications')
+                        createNotificationReminder();
                     }
                 }
+            },
+            {
+                label: 'Open OnePunch',
+                click: function () {
+                    mainWindow.show();
+                }
+            },
+            {
+                label: 'Quit',
+                click: function () {
+                    app.isQuiting = true;
+                    app.preventExit = false;
+                    app.quit();
+
+                }
+            }
             ]);
 
             tray.setToolTip('OnePunch')
@@ -518,7 +519,7 @@ ipcMain.on('settingsComplete', (event, arg) => {
             }
             createSplashScreen();
             createMainWindow();
-            settingsWindow.close();
+            // settingsWindow.close();
             // autoUpdater.checkForUpdates();
             if (returnedSettings.showUpdateSummary) {
                 createUpdateSummaryWindow();
@@ -603,12 +604,12 @@ var showToaster = function (msg) {
             clearTimeout(timer);
             clearTimeout(closeTimer)
             self.window = null;
-        } catch (e) {}
+        } catch (e) { }
     });
     var moveWindow = function (pos, done) {
         try {
             self.window.setPosition(display.workAreaSize.width - width - 4, pos);
-        } catch (e) {} finally {
+        } catch (e) { } finally {
             done();
         }
     };
@@ -638,7 +639,7 @@ var showToaster = function (msg) {
         if (self.window) {
             width = self.window.getSize()[0];
             height = self.window.getSize()[1];
-            slideUp(function () {});
+            slideUp(function () { });
         }
     });
 };
