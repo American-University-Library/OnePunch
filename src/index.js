@@ -67,16 +67,13 @@ if (monitorScreenHeight < 925) {
     document.body.style.overflowY = "scroll";
 }*/
 
-console.log(window.preload.getSettings());
 // load all settings, fill out the settings tab with those values, set the hotkey, and move any local logs
 window.preload.getSettings().then(async function (returnedSettings) {
-  console.log("returned settings are", returnedSettings);
 
   // load all the settings
   let hotKey = returnedSettings.hotKey || "F9";
   let deskName = returnedSettings.deskName || "Desk";
   let reminders = returnedSettings.reminders || false;
-  let logStrategy = returnedSettings.logStrategy || "cloud";
   let assumeDisconnected = returnedSettings.assumeDisconnected || false;
   altNotifications = returnedSettings.altNotifications || false;
   let selectedIcon = returnedSettings.selectedIcon || "owl_ico";
@@ -109,28 +106,6 @@ window.preload.getSettings().then(async function (returnedSettings) {
   const logPath = returnedSettings.logPath.display || "Not defined";
   const logPathValue = returnedSettings.logPath.display || "Not defined";
   document.getElementById("logPath").value = logPathValue;
-  document.getElementById("logStrategy").value = logStrategy;
-
-  const strategyRadios = document.querySelectorAll(
-    'input[type=radio][name="strategy"]'
-  );
-
-  strategyRadios.forEach((radio) => {
-    if (radio.value === logStrategy) {
-      radio.checked = true;
-      const storageDivs = document.querySelectorAll("div.storage");
-      storageDivs.forEach((div) => {
-        const classList = div.classList;
-        if (classList.contains(radio.value)) {
-          div.style.display = "inline-block";
-        } else {
-          div.style.display = "none";
-        }
-      });
-    } else {
-      radio.checked = false;
-    }
-  });
 
   document.getElementById("cloudAuth").value = cloudAuth || "";
   document.getElementById("cloudPath").value = cloudPath || "";
@@ -217,6 +192,8 @@ document.getElementById("moveLocalBtn").addEventListener("click", function () {
     }
   });
 });
+
+
 document
   .getElementById("generateReportBtn")
   .addEventListener("click", function () {
@@ -305,36 +282,6 @@ var endPicker = new Pikaday({
   },
 });
 
-// -- change auth flow stuff starts here with the functionality of new buttons
-
-document.getElementById("networkPicker").addEventListener("click", function () {
-  FileDialog()
-    .then(function (chosenDir) {
-      document.getElementById("logFolderName").textContent = chosenDir;
-      document.getElementById("logPath").value = chosenDir;
-    })
-    .catch((err) => console.log("err", err));
-});
-
-const strategyRadios = document.querySelectorAll(
-  'input[type=radio][name="strategy"]'
-);
-strategyRadios.forEach((radio) => {
-  radio.addEventListener("change", () => {
-    const storageDivs = document.querySelectorAll("div.storage");
-    storageDivs.forEach((div) => {
-      const classList = div.classList;
-      if (classList.contains(radio.value)) {
-        div.style.display = "inline-block";
-      } else {
-        div.style.display = "none";
-      }
-    });
-  });
-});
-
-// -- change auth flow stuff ends here
-
 document.getElementById("savePicker").addEventListener("click", function () {
   FileDialog().then(function (chosenDir) {
     document.getElementById("saveFolderName").textContent = chosenDir;
@@ -353,7 +300,6 @@ document.getElementById("saveBtn").addEventListener("click", function () {
   ).value;
   document.getElementById("currentHotKey").value = hotKeyChoice;
 
-  let logStrategy = document.getElementById("logStrategy").value;
 
   let chosenDir = document.getElementById("logPath").value;
 
@@ -376,7 +322,7 @@ document.getElementById("saveBtn").addEventListener("click", function () {
 
   let settingsObj = {};
   if (deskName != "" && chosenDir != "") {
-    GetLogLocations(chosenDir, logStrategy).then(function (logPath) {
+    GetLogLocations(chosenDir).then(function (logPath) {
       window.preload
         .setSetting("logPath", logPath)
         .then(function (settingSaved) {
@@ -384,9 +330,6 @@ document.getElementById("saveBtn").addEventListener("click", function () {
         })
         .then(function (settingSaved) {
           return window.preload.setSetting("hotKey", hotKeyChoice);
-        })
-        .then(function (settingSaved) {
-          return window.preload.setSetting("logStrategy", logStrategy);
         })
         .then(function (settingSaved) {
           return window.preload.setSetting("reminders", remindersChoice);
@@ -457,8 +400,6 @@ document.getElementById("validateBtn").addEventListener("click", () => {
   let cloudAuthEntry = document.getElementById("cloudAuth").value;
   let cloudAuth = cloudAuthEntry.trim();
   cloudAuth = cloudAuth.replace(/[\uE000-\uF8FF]/g, "");
-
-  console.log(cloudPath, cloudAuth);
 });
 
 window.preload.on("reminderNotify", (dailyPunchCountObj) => {

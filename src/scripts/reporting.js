@@ -1,8 +1,4 @@
 const fs = require('fs');
-const NetworkStrategy = require('./networkStrategy');
-const GoogleStrategy = require('./googleStrategy');
-const OfficeStrategy = require('./officeStrategy');
-const CloudStrategy = require('./cloudStrategy');
 const { settings } = require('cluster');
 
 
@@ -11,21 +7,13 @@ module.exports = {
     // Basic flow: get the unsorted data, sort it, total it by day and/or hour, save it to a csv file
     // right now this doesn't overwrite file, so if there's a previously existing report it will just append this info
 
-    generateReport: function (startDate, endDate, showDetailByDesk, showDetailByHour, savePath,window) {
+    generateReport: function (startDate, endDate, showDetailByDesk, showDetailByHour, savePath, window) {
         return new Promise(function (resolve, reject) {
             let returnedSettings;
             window.preload.getSettings()
                 .then(function (settings) {
-                    returnedSettings = {...settings}
-                    if (returnedSettings.logStrategy === "network") {
-                        return NetworkStrategy.getReportData(startDate, endDate, showDetailByDesk, showDetailByHour, returnedSettings,window);
-                    } else if (returnedSettings.logStrategy === "google") {
-                        return GoogleStrategy.getReportData(startDate, endDate, showDetailByDesk, showDetailByHour, returnedSettings);
-                    } else if (returnedSettings.logStrategy === "office") {
-                        return OfficeStrategy.getReportData(startDate, endDate, showDetailByDesk, showDetailByHour, returnedSettings);
-                    } else if (returnedSettings.logStrategy === "cloud") {
-                        return CloudStrategy.getReportData(startDate, endDate, showDetailByDesk, showDetailByHour, returnedSettings);
-                    }
+                    returnedSettings = { ...settings }
+                    return CloudStrategy.getReportData(startDate, endDate, showDetailByDesk, showDetailByHour, returnedSettings);
                 }).then(function (unsortedObjectArray) {
                     return sortLogObjectArray(unsortedObjectArray, showDetailByDesk, showDetailByHour);
                 }).then(function (objectArray) {
@@ -36,7 +24,7 @@ module.exports = {
                     resolve(reportingComplete);
                 }).catch(function (error) {
                     if (error === "connection error") {
-                        window.preload.WindowsNotifications("Cannot connect!", "Please connect to network drive", "exclamation_mark_64.png", 3500, returnedSettings.altNotifications,window);
+                        window.preload.WindowsNotifications("Cannot connect!", "Please connect to network drive", "exclamation_mark_64.png", 3500, returnedSettings.altNotifications, window);
                     }
                 });
         });
@@ -148,9 +136,9 @@ function writeTotalsToCsv(totalsArray, savePath, showDetailByDesk, showDetailByH
                         fs.writeFile(
                             fullSavePath,
                             outputString, {
-                                encoding: "UTF-8",
-                                flag: "a"
-                            },
+                            encoding: "UTF-8",
+                            flag: "a"
+                        },
                             function (err) {
                                 if (err) {
                                     resolve(false);
@@ -165,9 +153,9 @@ function writeTotalsToCsv(totalsArray, savePath, showDetailByDesk, showDetailByH
                         fs.writeFile(
                             fullSavePath,
                             outputString, {
-                                encoding: "UTF-8",
-                                flag: "a"
-                            },
+                            encoding: "UTF-8",
+                            flag: "a"
+                        },
                             function (err) {
                                 if (err) {
                                     resolve(false);
@@ -184,9 +172,9 @@ function writeTotalsToCsv(totalsArray, savePath, showDetailByDesk, showDetailByH
                         fs.writeFile(
                             fullSavePath,
                             outputString, {
-                                encoding: "UTF-8",
-                                flag: "a"
-                            },
+                            encoding: "UTF-8",
+                            flag: "a"
+                        },
                             function (err) {
                                 if (err) {
                                     resolve(false);
@@ -201,9 +189,9 @@ function writeTotalsToCsv(totalsArray, savePath, showDetailByDesk, showDetailByH
                         fs.writeFile(
                             fullSavePath,
                             outputString, {
-                                encoding: "UTF-8",
-                                flag: "a"
-                            },
+                            encoding: "UTF-8",
+                            flag: "a"
+                        },
                             function (err) {
                                 if (err) {
                                     resolve(false);

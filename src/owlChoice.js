@@ -1,7 +1,6 @@
 
 // highlight the currently selected owl
 window.preload.getSettings().then(function({selectedIcon}){
-    console.log('opening page', 'id', selectedIcon)
     var selectedIconId = selectedIcon || "owl_ico";
     var owlIcons = document.querySelectorAll(".owlIcon");
         for (var i = 0; i < owlIcons.length; i++) {
@@ -15,11 +14,9 @@ window.preload.getSettings().then(function({selectedIcon}){
 // there's no real reason why I decided to add this event listener this way
 // besides trying something new
 document.body.addEventListener("click", function (event) {
-    console.log('clicking owl')
     if (event.target.classList.contains("owlIcon")) {
         
         var selectedIconId = event.target.id;
-        console.log('selected id',selectedIconId)
         var owlIcons = document.querySelectorAll(".owlIcon");
         for (var i = 0; i < owlIcons.length; i++) {
             owlIcons[i].classList.remove("selectedOwl")
@@ -33,7 +30,6 @@ document.body.addEventListener("click", function (event) {
 // and change the icon in the main window
 document.getElementById("saveBtn").addEventListener("click", function () {
     let selectedIcon = document.getElementById('selectedOwl').value
-    console.log('selected icon is ', selectedIcon)
     window.preload.setSetting('selectedIcon', selectedIcon).then(function (settingSaved) {
         window.preload.send('owlSelected', selectedIcon);
     });

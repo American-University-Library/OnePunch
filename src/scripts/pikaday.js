@@ -7,7 +7,6 @@
 
 (function (root, factory) {
     'use strict';
-    console.log('in pikaday')
 
     var moment;
     if (typeof exports === 'object') {

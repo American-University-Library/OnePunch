@@ -1,14 +1,12 @@
 updateCount();
 
 window.preload.on('updateCount', (owlPicked) => {
-    console.log('received message in reminders window')
     updateCount();
 });
 
 function updateCount() {
     window.preload.getSettings()
         .then(function (returnedSettings) {
-            console.log('update count func in reminderd window', 'settings', returnedSettings)
             window.preload.Reminders(returnedSettings).then(function (dailyPunchCountObj) {
                 let selectedIcon = returnedSettings.selectedIcon || "owl_ico";
                 let icon128Path = "../images/" + selectedIcon + "_128.png";

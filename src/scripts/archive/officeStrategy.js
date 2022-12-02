@@ -2,8 +2,8 @@
 // this one is for data stored on Office 365
 // as of 1.4.1 only shared drive logging is available
 
-const WindowsNotifications = require("./windowsNotifications");
-const SaveLocalLog = require("./saveLocalLog");
+const WindowsNotifications = require("../windowsNotifications");
+const SaveLocalLog = require("../saveLocalLog");
 
 module.exports = {
 

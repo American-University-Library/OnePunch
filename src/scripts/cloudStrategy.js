@@ -45,10 +45,7 @@ module.exports = {
           "," +
           deskName +
           "\r\n";
-        console.log('about to post')
         const response = await window.preload.postLog();
-        console.log('cloud strategy', response)
-        console.log('cloud', settingsLogObject);
         WindowsNotifications.notify("Logged!", "Logged to shared file", selectedIconName, 2000, altNotifications,window)
         resolve(logObject);
       } catch (err) {
@@ -85,7 +82,6 @@ module.exports = {
   // returns the number of punches in a given day
   getDailyTotal: function (returnedSettings) {
     return new Promise(function (resolve, reject) {
-      console.log(returnedSettings);
       // get the number of punches today
       resolve(returnedSettings);
     });
@@ -100,13 +96,6 @@ module.exports = {
     returnedSettings
   ) {
     return new Promise(function (resolve, reject) {
-      console.log(
-        startDate,
-        endDate,
-        showDetailByDesk,
-        showDetailByHour,
-        returnedSettings
-      );
       // get report data
       let objectArray = [];
       let logObj = {};
@@ -126,7 +115,6 @@ module.exports = {
   // moves all logs saved locally in settings to the shared log location
   moveLocalText: function (returnedSettings) {
     return new Promise(function (resolve, reject) {
-      console.log(returnedSettings);
       const localLogs = returnedSettings.localLogs;
       var len = localLogs.length;
       var i = 0;

@@ -14,13 +14,8 @@ module.exports = {
     notify: function (notificationTitle, notificationText, icon, hangTime, altNotifications,window) {
 
         //altNotifications = true;
-
-        console.log('notify params',notificationTitle, notificationText, icon, hangTime, altNotifications,window)
         const iconPath = '../images/' + icon;
         if (altNotifications) {
-
-            console.log('in alt')
-            
             var msg = {
                 title: notificationTitle,
                 message: notificationText,
@@ -31,7 +26,6 @@ module.exports = {
             };
             window.preload.send('electron-toaster-message', msg);
         } else {
-            console.log('In notifier')
             const options = {
                 icon: iconPath,
                 body: notificationText
@@ -46,8 +40,6 @@ module.exports = {
             notification.onerror = err => {
                 console.log('error', err)
             }
-
-            console.log('notification', notification)
         }
     }
 }

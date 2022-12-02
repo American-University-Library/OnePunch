@@ -3,8 +3,8 @@
 // as of 1.4.1 this is the only one available
 
 const fs = require('fs');
-const WindowsNotifications = require("./windowsNotifications");
-const SaveLocalLog = require("./saveLocalLog");
+const WindowsNotifications = require("../windowsNotifications");
+const SaveLocalLog = require("../saveLocalLog");
 //const { settings } = require('cluster');
 
 const settings = require('electron-settings');

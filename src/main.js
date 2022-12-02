@@ -27,8 +27,6 @@ app.preventExit = true;
 const appFolder = path.dirname(process.execPath)
 const exeName = path.basename(process.execPath)
 
-console.log('Logging')
-
 app.setLoginItemSettings({
     openAtLogin: true,
     args: [
@@ -372,7 +370,6 @@ app.on('ready', function () {
     // launch the splash screen and main window
     // check for updates
     settings.get().then(function (returnedSettings) {
-        console.log(returnedSettings)
         const altNotifications = returnedSettings.altNotifications || false;
         if (returnedSettings.initialized) {
             if (returnedSettings.reminders == "notifications" || returnedSettings.reminders == "popups") {
@@ -568,7 +565,6 @@ ipcMain.on('showAboutWindow', function (event) {
 // after a new owl is picked message comes here to close the window
 // and then goes back to the main window to change the image
 ipcMain.on('owlSelected', function (event, selectedOwl) {
-    console.log('in main', selectedOwl)
     owlChoice.close();
     mainWindow.webContents.send('newOwl', selectedOwl);
 });

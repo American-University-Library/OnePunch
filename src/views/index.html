@@ -146,59 +146,7 @@
       class="tabContent ui grid middle aligned centered"
       style="display: none"
     >
-      <div class="fourteen wide column">
-        <h2 class="tooltip">
-          Storage Strategy<span class="tooltiptext"
-            >Choose the strategy for saving data.</span
-          >
-        </h2>
-      </div>
-      <div class="twelve wide column">
-        <div class="field">
-          <input
-            type="radio"
-            name="strategy"
-            value="cloud"
-            class="ui radio checkbox"
-          />
-          <label for="cloud">Cloud</label>
-        </div>
-        <div class="field">
-          <input
-            type="radio"
-            name="strategy"
-            value="network"
-            class="ui radio checkbox"
-          />
-          <label for="network">Network</label>
-        </div>
-        <input id="currentStrategy" type="hidden" name="userSetting" value="" />
-      </div>
 
-      <div class="fourteen wide column network storage" style="">
-        <h2 class="tooltip">
-          Data Storage<span class="tooltiptext"
-            >The shared location where interactions will be logged. Be sure to
-            pick the same folder for all the computers in your unit.</span
-          >
-        </h2>
-      </div>
-      <div class="twelve wide column network storage" style="">
-        <button id="networkPicker" class="ui primary button fluid">
-          Choose Network Directory
-        </button>
-      </div>
-      <div class="twelve wide column network storage">
-        <div class="ui input large">
-          <input
-            id="deskPicker"
-            class="ui input large"
-            name="userSetting"
-            type="text"
-            placeholder="Enter desk name"
-          />
-        </div>
-      </div>
 
       <div class="fourteen wide column cloud storage" style="">
         <h2 class="tooltip">
@@ -237,7 +185,6 @@
       </div>
 
       <input id="logPath" type="hidden" name="userSetting" value="" />
-      <input id="logStrategy" type="hidden" name="userSetting" value="" />
 
       <hr style="width: 80%" />
       <div class="fourteen wide column">

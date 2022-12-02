@@ -1,7 +1,7 @@
 const NetworkStrategy = require('./networkStrategy');
-const GoogleStrategy = require('./googleStrategy');
+const GoogleStrategy = require('../googleStrategy');
 const OfficeStrategy = require('./officeStrategy');
-const CloudStrategy = require('./cloudStrategy');
+const CloudStrategy = require('../cloudStrategy');
 
 
 module.exports = {

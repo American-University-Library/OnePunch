@@ -10,8 +10,6 @@ const globalShortcut = /* electron.globalShortcut ||  */ electron.remote.globalS
 const dialog = electron.dialog || electron.remote.dialog
 const process = electron.process || electron.remote.process
 
-console.log(globalShortcut)
-
 
 const electronSettings = require('electron-settings')
 const axios = require('axios');
@@ -33,7 +31,6 @@ const {
 } = require('cluster');
 
 const setHotKey = (hotKey, window) => {
-    console.log('in set hot key')
     globalShortcut.register(hotKey, () => {
         LogText.logText(window, 'from hot key');
     });
@@ -44,7 +41,7 @@ contextBridge.exposeInMainWorld(
     LogText: (window, source) => LogText.logText(window, source),
     MoveLocalText: window => MoveLocalText.moveText(window),
     Reports: (startDate, endDate, showDetailByDesk, showDetailByHour, savePath, window) => Reports.generateReport(startDate, endDate, showDetailByDesk, showDetailByHour, savePath, window),
-    GetLogLocations: (location, logStrategy) => GetLogLocations.getLogLocations(location, logStrategy),
+    GetLogLocations: (location) => GetLogLocations.getLogLocations(location),
     FileDialog: () => FileDialog.getFolder(),
     WindowsNotifications: (notificationTitle, notificationText, icon, hangTime, altNotifications, window) => WindowsNotifications.notify(notificationTitle, notificationText, icon, hangTime, altNotifications, window),
     Reminders: (returnedSettings) => Reminders.getDailyPunches(returnedSettings),
@@ -66,7 +63,6 @@ contextBridge.exposeInMainWorld(
     registerHotKey: (hotKey, window) => {
         let validHotKeys = ['F9', 'Ctrl+F9', 'Ctrl+Alt+F9'];
         if (validHotKeys.includes(hotKey)) {
-            console.log('in register')
             setHotKey(hotKey, window)
         }
     },
@@ -84,13 +80,13 @@ contextBridge.exposeInMainWorld(
         return fetchedSettings;
     },
     setSetting: async (key, value) => {
-        const validKeys = ['showUpdateSummary', 'selectedIcon', 'logPath', 'deskName', 'hotKey', 'logStrategy', 'reminders', 'assumeDisconnected', 'altNotifications', 'initialized', 'localLogs'];
+        const validKeys = ['showUpdateSummary', 'selectedIcon', 'logPath', 'deskName', 'hotKey', 'reminders', 'assumeDisconnected', 'altNotifications', 'initialized', 'localLogs'];
         if (validKeys.includes(key)) {
             await electronSettings.set(key, value);
         }
     },
     deleteSetting: async (key) => {
-        const validKeys = ['showUpdateSummary', 'selectedIcon', 'logPath', 'deskName', 'hotKey', 'logStrategy', 'reminders', 'assumeDisconnected', 'altNotifications', 'initialized', 'localLogs'];
+        const validKeys = ['showUpdateSummary', 'selectedIcon', 'logPath', 'deskName', 'hotKey', 'reminders', 'assumeDisconnected', 'altNotifications', 'initialized', 'localLogs'];
         if (validKeys.includes(key)) {
             await electronSettings.unset(key);
         }
@@ -103,7 +99,6 @@ contextBridge.exposeInMainWorld(
                 url: returnedSettings.logPath,
                 data: {}
             });
-            console.log('preload', response);
             return response;
         } catch (err) {
             console.log(err)
@@ -117,7 +112,6 @@ contextBridge.exposeInMainWorld(
     },
     on: (channel, func) => {
         let validChannels = ['reminderNotify', 'newOwl', 'updateCount'];
-        console.log('preload', channel, func)
         if (validChannels.includes(channel)) {
             ipcRenderer.on(channel, (event, ...args) => func(...args));
         }
