@@ -7,29 +7,24 @@ module.exports = {
     // Basic flow: get the unsorted data, sort it, total it by day and/or hour, save it to a csv file
     // right now this doesn't overwrite file, so if there's a previously existing report it will just append this info
 
-    generateReport: function (startDate, endDate, showDetailByDesk, showDetailByHour, savePath, window) {
-        return new Promise(function (resolve, reject) {
-            let returnedSettings;
-            window.preload.getSettings()
-                .then(function (settings) {
-                    returnedSettings = { ...settings }
-                    return CloudStrategy.getReportData(startDate, endDate, showDetailByDesk, showDetailByHour, returnedSettings);
-                }).then(function (unsortedObjectArray) {
-                    return sortLogObjectArray(unsortedObjectArray, showDetailByDesk, showDetailByHour);
-                }).then(function (objectArray) {
-                    return processObjectsToTotals(objectArray, showDetailByDesk, showDetailByHour);
-                }).then(function (totalsArray) {
-                    return writeTotalsToCsv(totalsArray, savePath, showDetailByDesk, showDetailByHour, startDate, endDate);
-                }).then(function (reportingComplete) {
-                    resolve(reportingComplete);
-                }).catch(function (error) {
-                    if (error === "connection error") {
-                        window.preload.WindowsNotifications("Cannot connect!", "Please connect to network drive", "exclamation_mark_64.png", 3500, returnedSettings.altNotifications, window);
-                    }
-                });
-        });
-    }
 
+
+    generateReport: async (startDate, endDate, showDetailByDesk, showDetailByHour, savePath, window) => {
+        try {
+            let returnedSettings;
+            const settings = await window.preload.getSettings()
+            returnedSettings = { ...settings }
+            const unsortedObjectArray = await CloudStrategy.getReportData(startDate, endDate, showDetailByDesk, showDetailByHour, returnedSettings);
+            const objectArray = await sortLogObjectArray(unsortedObjectArray, showDetailByDesk, showDetailByHour);
+            const totalsArray = await processObjectsToTotals(objectArray, showDetailByDesk, showDetailByHour);
+            const reportingComplete = await writeTotalsToCsv(totalsArray, savePath, showDetailByDesk, showDetailByHour, startDate, endDate);
+            return reportingComplete;
+        } catch (error) {
+            if (error === "connection error") {
+                window.preload.WindowsNotifications("Cannot connect!", "Please connect to network drive", "exclamation_mark_64.png", 3500, returnedSettings.altNotifications, window);
+            }
+        }
+    }
 }
 
 function sortLogObjectArray(objectArray, showDetailByDesk, showDetailByHour) {

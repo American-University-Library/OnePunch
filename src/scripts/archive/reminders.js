@@ -48,23 +48,7 @@ module.exports = {
 
 function getSharedPunchCount(returnedSettings) {
     return new Promise(function (resolve, reject) {
-        if (returnedSettings.logStrategy === "network") {
-            NetworkStrategy.getDailyTotal(returnedSettings).then(function (sharedPunchCount) {
-                resolve(sharedPunchCount);
-            });
-        } else if (returnedSettings.logStrategy === "google") {
-            GoogleStrategy.getDailyTotal(returnedSettings).then(function (sharedPunchCount) {
-                resolve(sharedPunchCount);
-            });
-        } else if (returnedSettings.logStrategy === "office") {
-            OfficeStrategy.getDailyTotal(returnedSettings).then(function (sharedPunchCount) {
-                resolve(sharedPunchCount);
-            });
-        } else if (returnedSettings.logStrategy === "cloud") {
-            CloudStrategy.getDailyTotal(returnedSettings).then(function (sharedPunchCount) {
-                resolve(sharedPunchCount);
-            });
-        }
-
+        // get the number of punches today
+        resolve(returnedSettings);
     });
 }

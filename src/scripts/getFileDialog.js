@@ -5,14 +5,9 @@ const { dialog } = remote;
 // note that this is for picking folders and not files
 
 module.exports = {
-    getFolder: function () {
-        return new Promise(function (resolve, reject) {
-            dialog.showOpenDialog({
-                properties: ['openDirectory']
-            }).then(result => {
-                const chosenDir = result.filePaths[0];
-                resolve(chosenDir);
-            });
-        });
+    getFolder: async () => {
+        const result = await dialog.showOpenDialog({ properties: ['openDirectory'] })
+        const chosenDir = result.filePaths[0];
+        return chosenDir;
     }
 }

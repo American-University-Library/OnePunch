@@ -114,32 +114,34 @@ window.preload.getSettings().then(async function (returnedSettings) {
   window.preload.registerHotKey(hotKey, window);
 
   // move any local logs
-  MoveLocalText(window).then(function (logsMovedObj) {
-    let logsMoved = logsMovedObj.logsMoved;
-    if (logsMoved !== false) {
-      if (logsMoved > 0) {
-        let notifyMessage =
-          "Moved " + logsMoved + " logs from local storage to shared file";
-        WindowsNotifications(
-          "Update!",
-          notifyMessage,
-          selectedIconName,
-          3500,
-          altNotifications,
-          window
-        );
-      }
-    } else {
+  const logsMovedObj = await MoveLocalText(window);
+  let logsMoved = logsMovedObj.logsMoved;
+  if (logsMoved !== false) {
+    if (logsMoved > 0) {
+      let notifyMessage =
+        "Moved " + logsMoved + " logs from local storage to shared file";
       WindowsNotifications(
-        "Cannot connect!",
-        "Logs will save locally until connected to network drive",
-        "exclamation_mark_64.png",
+        "Update!",
+        notifyMessage,
+        selectedIconName,
         3500,
         altNotifications,
         window
       );
     }
-  });
+  } else {
+    WindowsNotifications(
+      "Cannot connect!",
+      "Logs will save locally until connected to network drive",
+      "exclamation_mark_64.png",
+      3500,
+      altNotifications,
+      window
+    );
+  }
+
+
+
 });
 
 document.getElementById("logBtn").addEventListener("click", function () {
@@ -152,83 +154,81 @@ document
     window.preload.send("getCurrentCount");
   });
 
-document.getElementById("moveLocalBtn").addEventListener("click", function () {
-  MoveLocalText(window).then(function (logsMovedObj) {
-    let logsMoved = logsMovedObj.logsMoved;
-    let selectedIcon = logsMovedObj.selectedIcon;
-    let selectedIconName = selectedIcon + "_64.png";
-    if (logsMoved !== false) {
-      if (logsMoved > 0) {
-        let notifyMessage =
-          "Moved " + logsMoved + " logs from local storage to shared file";
-        WindowsNotifications(
-          "Update!",
-          notifyMessage,
-          selectedIconName,
-          3500,
-          altNotifications,
-          window
-        );
-      } else {
-        let notifyMessage = "No local logs to move";
-        WindowsNotifications(
-          "Update!",
-          notifyMessage,
-          selectedIconName,
-          3500,
-          altNotifications,
-          window
-        );
-      }
-    } else {
+document.getElementById("moveLocalBtn").addEventListener("click", async () => {
+  const logsMovedObj = MoveLocalText(window);
+  let logsMoved = logsMovedObj.logsMoved;
+  let selectedIcon = logsMovedObj.selectedIcon;
+  let selectedIconName = selectedIcon + "_64.png";
+  if (logsMoved !== false) {
+    if (logsMoved > 0) {
+      let notifyMessage =
+        "Moved " + logsMoved + " logs from local storage to shared file";
       WindowsNotifications(
-        "Cannot connect!",
-        "Logs will save locally until connected to network drive",
-        "exclamation_mark_64.png",
+        "Update!",
+        notifyMessage,
+        selectedIconName,
+        3500,
+        altNotifications,
+        window
+      );
+    } else {
+      let notifyMessage = "No local logs to move";
+      WindowsNotifications(
+        "Update!",
+        notifyMessage,
+        selectedIconName,
         3500,
         altNotifications,
         window
       );
     }
-  });
+  } else {
+    WindowsNotifications(
+      "Cannot connect!",
+      "Logs will save locally until connected to network drive",
+      "exclamation_mark_64.png",
+      3500,
+      altNotifications,
+      window
+    );
+  }
 });
 
 
 document
   .getElementById("generateReportBtn")
-  .addEventListener("click", function () {
+  .addEventListener("click", async () => {
     let showDetailByDesk = document.getElementById("deskCheck").checked;
     let showDetailByHour = document.getElementById("hourCheck").checked;
     let startDate = document.getElementById("startDate").value;
     let endDate = document.getElementById("endDate").value;
     let savePath = document.getElementById("savePath").value;
     if (startDate != "" && endDate != "" && savePath != "") {
-      Reports(
+      const reportingComplete = await Reports(
         startDate,
         endDate,
         showDetailByDesk,
         showDetailByHour,
         savePath,
         window
-      ).then(function (reportingComplete) {
-        if (reportingComplete) {
-          window.preload.showMessageBox({
-            message: "Report saved!",
-            buttons: ["OK"],
-            type: "info",
-            icon: iconpath,
-            title: "Saved",
-          });
-        } else {
-          window.preload.showMessageBox({
-            message: "There was an error generating your report",
-            buttons: ["OK"],
-            type: "info",
-            icon: warnIconPath,
-            title: "Error",
-          });
-        }
-      });
+      );
+      if (reportingComplete) {
+        window.preload.showMessageBox({
+          message: "Report saved!",
+          buttons: ["OK"],
+          type: "info",
+          icon: iconpath,
+          title: "Saved",
+        });
+      } else {
+        window.preload.showMessageBox({
+          message: "There was an error generating your report",
+          buttons: ["OK"],
+          type: "info",
+          icon: warnIconPath,
+          title: "Error",
+        });
+      }
     } else {
       window.preload.showMessageBox({
         message: "Please choose report parameters",
@@ -282,104 +282,75 @@ var endPicker = new Pikaday({
   },
 });
 
-document.getElementById("savePicker").addEventListener("click", function () {
-  FileDialog().then(function (chosenDir) {
-    document.getElementById("saveFolderName").textContent = chosenDir;
-    document.getElementById("savePath").value = chosenDir;
-  });
+document.getElementById("savePicker").addEventListener("click", async () => {
+  const chosenDir = await FileDialog();
+  document.getElementById("saveFolderName").textContent = chosenDir;
+  document.getElementById("savePath").value = chosenDir;
 });
 
 // saves settings. Remember to deregister current hotkey before assigning a new one
-document.getElementById("saveBtn").addEventListener("click", function () {
-  let currentHotKey = document.getElementById("currentHotKey").value;
-  let hotKeyChoice = document.querySelector(
-    'input[name="hotKey"]:checked'
-  ).value;
-  let remindersChoice = document.querySelector(
-    'input[name="reminders"]:checked'
-  ).value;
-  document.getElementById("currentHotKey").value = hotKeyChoice;
-
-
-  let chosenDir = document.getElementById("logPath").value;
-
-  let cloudPathEntry = document.getElementById("cloudPath").value;
-  let cloudPath = cloudPathEntry.trim();
-  cloudPath = cloudPath.replace(/[\uE000-\uF8FF]/g, "");
-
-  let cloudAuthEntry = document.getElementById("cloudAuth").value;
-  let cloudAuth = cloudAuthEntry.trim();
-  cloudAuth = cloudAuth.replace(/[\uE000-\uF8FF]/g, "");
-
-  let deskNameEntry = document.getElementById("deskPicker").value;
-  let deskName = deskNameEntry.trim();
-  deskName = deskName.replace(/[\uE000-\uF8FF]/g, "");
-
-  let assumeDisconnected = document.getElementById(
-    "assumeDisconnectedCheck"
-  ).checked;
-  let altNotifications = document.getElementById("altNotifications").checked;
-
-  let settingsObj = {};
-  if (deskName != "" && chosenDir != "") {
-    GetLogLocations(chosenDir).then(function (logPath) {
-      window.preload
-        .setSetting("logPath", logPath)
-        .then(function (settingSaved) {
-          return window.preload.setSetting("deskName", deskName);
-        })
-        .then(function (settingSaved) {
-          return window.preload.setSetting("hotKey", hotKeyChoice);
-        })
-        .then(function (settingSaved) {
-          return window.preload.setSetting("reminders", remindersChoice);
-        })
-        .then(function (settingSaved) {
-          window.preload.send("remindersChanged");
-        })
-        .then(function (settingSaved) {
-          return window.preload.setSetting(
-            "assumeDisconnected",
-            assumeDisconnected
-          );
-        })
-        .then(function (settingSaved) {
-          return window.preload.setSetting(
-            "altNotifications",
-            altNotifications
-          );
-        })
-        .then(function (settingSaved) {
-          return window.preload.setSetting("cloudPath", cloudPath);
-        })
-        .then(function (settingSaved) {
-          return window.preload.setSetting("cloudAuth", cloudAuth);
-        })
-        .then(async function (settingSaved) {
-          window.preload.unregisterHotKey(currentHotKey);
-          window.preload.registerHotKey(hotKeyChoice, window);
-        })
-        .then(function (settingSaved) {
-          window.preload.showMessageBox({
-            message: "Settings saved!",
-            buttons: ["OK"],
-            type: "info",
-            icon: iconpath,
-            title: "Saved",
-          });
-        })
-        .catch(function (error) {
-          console.log("Failed!", error);
-        });
-    });
-  } else {
-    window.preload.showMessageBox({
-      message: "Please choose your settings",
-      buttons: ["OK"],
-      type: "info",
-      icon: warnIconPath,
-      title: "Alert",
-    });
+document.getElementById("saveBtn").addEventListener("click", async () => {
+  try {
+    let currentHotKey = document.getElementById("currentHotKey").value;
+    let hotKeyChoice = document.querySelector(
+      'input[name="hotKey"]:checked'
+    ).value;
+    let remindersChoice = document.querySelector(
+      'input[name="reminders"]:checked'
+    ).value;
+    document.getElementById("currentHotKey").value = hotKeyChoice;
+    let chosenDir = document.getElementById("logPath").value;
+    let cloudPathEntry = document.getElementById("cloudPath").value;
+    let cloudPath = cloudPathEntry.trim();
+    cloudPath = cloudPath.replace(/[\uE000-\uF8FF]/g, "");
+    let cloudAuthEntry = document.getElementById("cloudAuth").value;
+    let cloudAuth = cloudAuthEntry.trim();
+    cloudAuth = cloudAuth.replace(/[\uE000-\uF8FF]/g, "");
+    let deskNameEntry = document.getElementById("deskPicker").value;
+    let deskName = deskNameEntry.trim();
+    deskName = deskName.replace(/[\uE000-\uF8FF]/g, "");
+    let assumeDisconnected = document.getElementById(
+      "assumeDisconnectedCheck"
+    ).checked;
+    let altNotifications = document.getElementById("altNotifications").checked;
+    let settingsObj = {};
+    if (deskName != "" && chosenDir != "") {
+      const logPath = await GetLogLocations(chosenDir);
+      await window.preload.setSetting("logPath", logPath);
+      await window.preload.setSetting("deskName", deskName);
+      await window.preload.setSetting("hotKey", hotKeyChoice);
+      await window.preload.setSetting("reminders", remindersChoice);
+      window.preload.send("remindersChanged");
+      await window.preload.setSetting(
+        "assumeDisconnected",
+        assumeDisconnected
+      );
+      await window.preload.setSetting(
+        "altNotifications",
+        altNotifications
+      );
+      await window.preload.setSetting("cloudPath", cloudPath);
+      await window.preload.setSetting("cloudAuth", cloudAuth);
+      window.preload.unregisterHotKey(currentHotKey);
+      window.preload.registerHotKey(hotKeyChoice, window);
+      window.preload.showMessageBox({
+        message: "Settings saved!",
+        buttons: ["OK"],
+        type: "info",
+        icon: iconpath,
+        title: "Saved",
+      });
+    } else {
+      window.preload.showMessageBox({
+        message: "Please choose your settings",
+        buttons: ["OK"],
+        type: "info",
+        icon: warnIconPath,
+        title: "Alert",
+      });
+    }
+  } catch (err) {
+    console.log(err)
   }
 });
 

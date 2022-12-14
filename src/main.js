@@ -362,74 +362,74 @@ function createMainWindow() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', function () {
+app.on('ready', async () => {
 
     // on ready events:
     // get the settings
     // set up the timeout loop for notifcations
     // launch the splash screen and main window
     // check for updates
-    settings.get().then(function (returnedSettings) {
-        const altNotifications = returnedSettings.altNotifications || false;
-        if (returnedSettings.initialized) {
-            if (returnedSettings.reminders == "notifications" || returnedSettings.reminders == "popups") {
-                loopReminders(returnedSettings);
-            }
-            createSplashScreen();
-            createMainWindow()
-            // autoUpdater.checkForUpdates();
 
-            tray = new Tray(iconpath)
-            const contextMenu = Menu.buildFromTemplate([{
-                label: 'How are we doing today?',
-                click: function () {
-                    // This allows for an alternate style of non native notifications
-                    //it was briefly needed after a windows updated prevented native notifications
-                    //It's being left in to guard against a similar problem in the future
-                    let osRelease = os.release();
-                    let osReleaseArray = osRelease.split(".");
-                    let osReleaseNum = osReleaseArray[2];
-                    if (/*osReleaseNum >= 16000 ||*/altNotifications) {
-                        console.log('In alt notifications')
-                        createRemindersWindow();
-                    } else {
-                        console.log('In regular notifications')
-                        createNotificationReminder();
-                    }
-                }
-            },
-            {
-                label: 'Open OnePunch',
-                click: function () {
-                    mainWindow.show();
-                }
-            },
-            {
-                label: 'Quit',
-                click: function () {
-                    app.isQuiting = true;
-                    app.preventExit = false;
-                    app.quit();
-
-                }
-            }
-            ]);
-
-            tray.setToolTip('OnePunch')
-            tray.setContextMenu(contextMenu)
-
-            tray.on('click', function () {
-                mainWindow.show();
-            });
-
-
-            if (returnedSettings.showUpdateSummary) {
-                createUpdateSummaryWindow();
-            }
-        } else {
-            createSettingsWindow();
+    const returnedSettings = await settings.get();
+    const altNotifications = returnedSettings.altNotifications || false;
+    if (returnedSettings.initialized) {
+        if (returnedSettings.reminders == "notifications" || returnedSettings.reminders == "popups") {
+            loopReminders(returnedSettings);
         }
-    });
+        createSplashScreen();
+        createMainWindow()
+        // autoUpdater.checkForUpdates();
+
+        tray = new Tray(iconpath)
+        const contextMenu = Menu.buildFromTemplate([{
+            label: 'How are we doing today?',
+            click: function () {
+                // This allows for an alternate style of non native notifications
+                //it was briefly needed after a windows updated prevented native notifications
+                //It's being left in to guard against a similar problem in the future
+                let osRelease = os.release();
+                let osReleaseArray = osRelease.split(".");
+                let osReleaseNum = osReleaseArray[2];
+                if (/*osReleaseNum >= 16000 ||*/altNotifications) {
+                    console.log('In alt notifications')
+                    createRemindersWindow();
+                } else {
+                    console.log('In regular notifications')
+                    createNotificationReminder();
+                }
+            }
+        },
+        {
+            label: 'Open OnePunch',
+            click: function () {
+                mainWindow.show();
+            }
+        },
+        {
+            label: 'Quit',
+            click: function () {
+                app.isQuiting = true;
+                app.preventExit = false;
+                app.quit();
+
+            }
+        }
+        ]);
+
+        tray.setToolTip('OnePunch')
+        tray.setContextMenu(contextMenu)
+
+        tray.on('click', function () {
+            mainWindow.show();
+        });
+
+
+        if (returnedSettings.showUpdateSummary) {
+            createUpdateSummaryWindow();
+        }
+    } else {
+        createSettingsWindow();
+    }
 });
 
 // Quit when all windows are closed.
@@ -458,11 +458,12 @@ autoUpdater.on('update-downloaded', () => {
         type: "info",
         icon: iconpath,
         title: "OnePunch Updates"
-    }, () => {
-        settings.set('showUpdateSummary', true).then(function (returnedSettings) {
-            app.preventExit = false;
-            setImmediate(() => autoUpdater.quitAndInstall(true, true));
-        });
+    }, async () => {
+
+        const returnedSettings = await settings.set('showUpdateSummary', true)
+        app.preventExit = false;
+        setImmediate(() => autoUpdater.quitAndInstall(true, true));
+
 
     });
 });
@@ -491,54 +492,52 @@ function loopReminders(returnedSettings) {
 };
 
 // notification reminders are managed from the main process
-function createNotificationReminder() {
-    settings.get()
-        .then(function (returnedSettings) {
-            Reminders.getDailyPunches(returnedSettings).then(function (dailyPunchCountObj) {
-                dailyPunchCountObj.assumeDisconnected = returnedSettings.assumeDisconnected;
-                dailyPunchCountObj.selectedIcon = returnedSettings.selectedIcon;
-                mainWindow.webContents.send('reminderNotify', dailyPunchCountObj);
-            }).catch(function (error) {
-                console.log(error);
-            });
-        }).catch(function (error) {
-            console.log(error);
-        });
+const createNotificationReminder = async () => {
+
+    try {
+        const returnedSettings = await settings.get();
+        const dailyPunchCountObj = await Reminders.getDailyPunches(returnedSettings);
+
+        dailyPunchCountObj.assumeDisconnected = returnedSettings.assumeDisconnected;
+        dailyPunchCountObj.selectedIcon = returnedSettings.selectedIcon;
+        mainWindow.webContents.send('reminderNotify', dailyPunchCountObj);
+    } catch (err) {
+        console.log(err)
+    }
 }
 
-
 // after initial settings are loaded the app runs through the same events as a regular startup
-ipcMain.on('settingsComplete', (event, arg) => {
-    settings.get().then(function (returnedSettings) {
-        if (returnedSettings.initialized) {
-            if (returnedSettings.reminders == "notifications" || returnedSettings.reminders == "popups") {
-                loopReminders(returnedSettings);
-            }
-            createSplashScreen();
-            createMainWindow();
-            // settingsWindow.close();
-            // autoUpdater.checkForUpdates();
-            if (returnedSettings.showUpdateSummary) {
-                createUpdateSummaryWindow();
-            }
-        } else {
-            createSettingsWindow();
+ipcMain.on('settingsComplete', async (event, arg) => {
+
+    const returnedSettings = await settings.get();
+    if (returnedSettings.initialized) {
+        if (returnedSettings.reminders == "notifications" || returnedSettings.reminders == "popups") {
+            loopReminders(returnedSettings);
         }
-    });
+        createSplashScreen();
+        createMainWindow();
+        // settingsWindow.close();
+        // autoUpdater.checkForUpdates();
+        if (returnedSettings.showUpdateSummary) {
+            createUpdateSummaryWindow();
+        }
+    } else {
+        createSettingsWindow();
+    }
+
 });
 
 // when the notification settings are changed, eliminate the prior timeout before setting a new one
 
 ipcMain.on('remindersChanged', () => {
-    settings.get().then(function (returnedSettings) {
-        if (typeof remindersTimeout !== 'undefined') {
-            clearTimeout(remindersTimeout);
-        }
-        let remindersType = returnedSettings.reminders;
-        if (remindersType == "notifications" || remindersType == "popups") {
-            loopReminders(returnedSettings);
-        }
-    });
+    const returnedSettings = await settings.get();
+    if (typeof remindersTimeout !== 'undefined') {
+        clearTimeout(remindersTimeout);
+    }
+    let remindersType = returnedSettings.reminders;
+    if (remindersType == "notifications" || remindersType == "popups") {
+        loopReminders(returnedSettings);
+    }
 });
 
 
