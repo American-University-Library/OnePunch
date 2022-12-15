@@ -14,7 +14,7 @@ module.exports = {
             let returnedSettings;
             const settings = await window.preload.getSettings()
             returnedSettings = { ...settings }
-            const unsortedObjectArray = await CloudStrategy.getReportData(startDate, endDate, showDetailByDesk, showDetailByHour, returnedSettings);
+            const unsortedObjectArray = await getReportData(startDate, endDate, showDetailByDesk, showDetailByHour, returnedSettings);
             const objectArray = await sortLogObjectArray(unsortedObjectArray, showDetailByDesk, showDetailByHour);
             const totalsArray = await processObjectsToTotals(objectArray, showDetailByDesk, showDetailByHour);
             const reportingComplete = await writeTotalsToCsv(totalsArray, savePath, showDetailByDesk, showDetailByHour, startDate, endDate);
@@ -228,6 +228,30 @@ function genSortString(jsDate, deskName, showDetailByDesk, showDetailByHour) {
         sortString = jsDate;
         return sortString;
     }
+}
+
+const getReportData = (
+    startDate,
+    endDate,
+    showDetailByDesk,
+    showDetailByHour,
+    returnedSettings
+) => {
+    return new Promise(function (resolve, reject) {
+        // get report data
+        let objectArray = [];
+        let logObj = {};
+        logObj.day = logEntryArray[0];
+        logObj.date = logEntryArray[1];
+        logObj.time = logEntryArray[2];
+        logObj.desk = logEntryArray[3];
+        logDateTimeString = logEntryArray[1] + " " + logEntryArray[2];
+        logObj.jsDate = new Date(logDateTimeString);
+        logObj.hour = logObj.jsDate.getHours();
+        logObj.count = 1;
+        objectArray.push(logObj);
+        resolve(objectArray);
+    });
 }
 
 

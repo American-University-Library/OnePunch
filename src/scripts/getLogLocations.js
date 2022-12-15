@@ -1,9 +1,3 @@
-const NetworkStrategy = require('./archive/networkStrategy');
-const GoogleStrategy = require('../googleStrategy');
-const OfficeStrategy = require('./archive/officeStrategy');
-const CloudStrategy = require('./cloudStrategy');
-
-
 module.exports = {
 
     // called to check where to go for getting logged interactions

@@ -371,7 +371,8 @@ app.on('ready', async () => {
     // check for updates
 
     const returnedSettings = await settings.get();
-    const altNotifications = returnedSettings.altNotifications || false;
+    // const altNotifications = returnedSettings.altNotifications || false;
+    const altNotifications = false;
     if (returnedSettings.initialized) {
         if (returnedSettings.reminders == "notifications" || returnedSettings.reminders == "popups") {
             loopReminders(returnedSettings);
@@ -391,10 +392,8 @@ app.on('ready', async () => {
                 let osReleaseArray = osRelease.split(".");
                 let osReleaseNum = osReleaseArray[2];
                 if (/*osReleaseNum >= 16000 ||*/altNotifications) {
-                    console.log('In alt notifications')
                     createRemindersWindow();
                 } else {
-                    console.log('In regular notifications')
                     createNotificationReminder();
                 }
             }
@@ -496,8 +495,21 @@ const createNotificationReminder = async () => {
 
     try {
         const returnedSettings = await settings.get();
-        const dailyPunchCountObj = await Reminders.getDailyPunches(returnedSettings);
 
+        const response = await axios.get(returnedSettings.logPath);
+        const sharedPunchCount = response.data.length;
+        let localPunches = 0;
+        let sharedPunches = true;
+        if (returnedSettings.localLogs) {
+            localPunches = returnedSettings.localLogs.length;
+        }
+        if (!sharedPunchCount && sharedPunchCount !== 0) {
+            sharedPunches = false;
+        }
+        const dailyPunchCountObj = {
+            punchCount: localPunches + sharedPunchCount,
+            sharedPunches: sharedPunches
+        };
         dailyPunchCountObj.assumeDisconnected = returnedSettings.assumeDisconnected;
         dailyPunchCountObj.selectedIcon = returnedSettings.selectedIcon;
         mainWindow.webContents.send('reminderNotify', dailyPunchCountObj);
@@ -529,7 +541,7 @@ ipcMain.on('settingsComplete', async (event, arg) => {
 
 // when the notification settings are changed, eliminate the prior timeout before setting a new one
 
-ipcMain.on('remindersChanged', () => {
+ipcMain.on('remindersChanged', async () => {
     const returnedSettings = await settings.get();
     if (typeof remindersTimeout !== 'undefined') {
         clearTimeout(remindersTimeout);
@@ -640,9 +652,7 @@ var showToaster = function (msg) {
 };
 
 
-// windows versions > 16000 require the app to explicitly declare the model id
-// it must match the one in package.json
-// without this you can't register native notifications
-//app.setAppUserModelId("com.app.onepunch")
+// set to allow notifications
+// app.setAppUserModelId("com.app.onepunch")
 
 app.setAppUserModelId(process.execPath)

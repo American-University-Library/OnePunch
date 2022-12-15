@@ -44,7 +44,29 @@ contextBridge.exposeInMainWorld(
     GetLogLocations: (location) => GetLogLocations.getLogLocations(location),
     FileDialog: () => FileDialog.getFolder(),
     WindowsNotifications: (notificationTitle, notificationText, icon, hangTime, altNotifications, window) => WindowsNotifications.notify(notificationTitle, notificationText, icon, hangTime, altNotifications, window),
-    Reminders: (returnedSettings) => Reminders.getDailyPunches(returnedSettings),
+    Reminders: () => {
+        return new Promise( async (resolve, reject) => {
+            try {
+                const returnedSettings = await electronSettings.get();
+                const response = await axios.get(returnedSettings.logPath);
+                const sharedPunchCount = response.data.length;
+                let localPunches = 0;
+                let sharedPunches = true;
+                if (returnedSettings.localLogs) {
+                    localPunches = returnedSettings.localLogs.length;
+                }
+                if (!sharedPunchCount && sharedPunchCount !== 0) {
+                    sharedPunches = false;
+                }
+                resolve({
+                    punchCount: localPunches + sharedPunchCount,
+                    sharedPunches: sharedPunches
+                });
+            } catch (err) {
+                reject(err);
+            }
+        });
+    },
     getIconPath: () => {
         const iconpath = path.join(__dirname, '/images/owl_ico_16.png');
         return iconpath;
@@ -94,14 +116,16 @@ contextBridge.exposeInMainWorld(
     postLog: async () => {
         try {
             const returnedSettings = await electronSettings.get();
-            const response = axios({
+            const request = {
                 method: 'post',
                 url: returnedSettings.logPath,
                 data: {}
-            });
+            }
+            const response = await axios(request);
             return response;
         } catch (err) {
             console.log(err)
+            return false;
         }
     },
     send: (channel, data) => {

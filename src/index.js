@@ -72,7 +72,7 @@ window.preload.getSettings().then(async function (returnedSettings) {
 
   // load all the settings
   let hotKey = returnedSettings.hotKey || "F9";
-  let deskName = returnedSettings.deskName || "Desk";
+  // let deskName = returnedSettings.deskName || "Desk";
   let reminders = returnedSettings.reminders || false;
   let assumeDisconnected = returnedSettings.assumeDisconnected || false;
   altNotifications = returnedSettings.altNotifications || false;
@@ -84,7 +84,7 @@ window.preload.getSettings().then(async function (returnedSettings) {
 
   // fill out the settings tab with those settings
   document.getElementById("mainOwlIconImage").src = icon128Path;
-  document.getElementById("deskPicker").value = deskName;
+  // document.getElementById("deskPicker").value = deskName;
   document
     .querySelectorAll('input[name="hotKey"]')
     .forEach(function (radioBtn) {
@@ -306,18 +306,18 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     let cloudAuthEntry = document.getElementById("cloudAuth").value;
     let cloudAuth = cloudAuthEntry.trim();
     cloudAuth = cloudAuth.replace(/[\uE000-\uF8FF]/g, "");
-    let deskNameEntry = document.getElementById("deskPicker").value;
-    let deskName = deskNameEntry.trim();
-    deskName = deskName.replace(/[\uE000-\uF8FF]/g, "");
+    // let deskNameEntry = document.getElementById("deskPicker").value;
+    // let deskName = deskNameEntry.trim();
+    // deskName = deskName.replace(/[\uE000-\uF8FF]/g, "");
     let assumeDisconnected = document.getElementById(
       "assumeDisconnectedCheck"
     ).checked;
     let altNotifications = document.getElementById("altNotifications").checked;
     let settingsObj = {};
-    if (deskName != "" && chosenDir != "") {
+    if (cloudPath != "" && cloudAuth != "") {
       const logPath = await GetLogLocations(chosenDir);
       await window.preload.setSetting("logPath", logPath);
-      await window.preload.setSetting("deskName", deskName);
+      //await window.preload.setSetting("deskName", deskName);
       await window.preload.setSetting("hotKey", hotKeyChoice);
       await window.preload.setSetting("reminders", remindersChoice);
       window.preload.send("remindersChanged");

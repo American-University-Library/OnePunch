@@ -1,16 +1,13 @@
-const NetworkStrategy = require('./archive/networkStrategy');
-const GoogleStrategy = require('../googleStrategy');
-const OfficeStrategy = require('./archive/officeStrategy');
-const CloudStrategy = require('./cloudStrategy');
-
 const settings = require('electron-settings');
+const SaveLocalLog = require('./saveLocalLog')
+const WindowsNotifications = require('./windowsNotifications')
 
 // the logObject has a weekday, month, date (00 - 31), year, hour (00 - 23), minute (00 - 60), and desk name
 // It's returned as an object attached to the settings object to make the settings available down the promise chain
 
 function generateLogObject(returnedSettings) {
     return new Promise(function (resolve, reject) {
-        const deskName = returnedSettings.deskName;
+        // const deskName = returnedSettings.deskName;
         const weekday = new Array(7);
         weekday[0] = "Sun";
         weekday[1] = "Mon";
@@ -42,7 +39,7 @@ function generateLogObject(returnedSettings) {
         logObject.currentYear = currentYear;
         logObject.currentHour = currentHour;
         logObject.currentMinuteString = currentMinuteString;
-        logObject.deskName = deskName;
+        // logObject.deskName = deskName;
         returnedSettings.logObject = logObject
         resolve(returnedSettings);
     });
@@ -56,43 +53,40 @@ module.exports = {
     // as of 1.4.1 only shared drive logging is available
 
     logText: function (window, source) {
-        console.log('source is ', source)
         return new Promise(async (resolve, reject) => {
 
             const returnedSettings = await settings.get();
             const settingsLogObject = await generateLogObject(returnedSettings);
-
-
-
+            const logObject = settingsLogObject.logObject;
+            const assumeDisconnected = settingsLogObject.assumeDisconnected;
+            const selectedIcon = settingsLogObject.selectedIcon || "owl_ico";
+            const selectedIconName = selectedIcon + "_64.png";
+            // const altNotifications = settingsLogObject.altNotifications || false;
+            const altNotifications = false;
+            const currentWeekday = logObject.currentWeekday;
+            const currentMonth = logObject.currentMonth;
+            const currentDateString = logObject.currentDateString;
+            const currentYear = logObject.currentYear;
+            const currentHour = logObject.currentHour;
+            const currentMinuteString = logObject.currentMinuteString;
+            // const deskName = logObject.deskName;
+            const logText =
+                currentWeekday +
+                "," +
+                currentMonth +
+                "/" +
+                currentDateString +
+                "/" +
+                currentYear +
+                "," +
+                currentHour +
+                ":" +
+                currentMinuteString +/* 
+                "," +
+                deskName + */
+                "\r\n";
             try {
-                const logObject = settingsLogObject.logObject;
-                const assumeDisconnected = settingsLogObject.assumeDisconnected;
-                const selectedIcon = settingsLogObject.selectedIcon || "owl_ico";
-                const selectedIconName = selectedIcon + "_64.png";
-                // const altNotifications = settingsLogObject.altNotifications || false;
-                const altNotifications = false;
-                const currentWeekday = logObject.currentWeekday;
-                const currentMonth = logObject.currentMonth;
-                const currentDateString = logObject.currentDateString;
-                const currentYear = logObject.currentYear;
-                const currentHour = logObject.currentHour;
-                const currentMinuteString = logObject.currentMinuteString;
-                const deskName = logObject.deskName;
-                const logText =
-                    currentWeekday +
-                    "," +
-                    currentMonth +
-                    "/" +
-                    currentDateString +
-                    "/" +
-                    currentYear +
-                    "," +
-                    currentHour +
-                    ":" +
-                    currentMinuteString +
-                    "," +
-                    deskName +
-                    "\r\n";
+
                 const response = await window.preload.postLog();
                 WindowsNotifications.notify("Logged!", "Logged to shared file", selectedIconName, 2000, altNotifications, window)
                 resolve(logObject);

@@ -1,9 +1,3 @@
-const NetworkStrategy = require('./networkStrategy');
-const GoogleStrategy = require('../googleStrategy');
-const OfficeStrategy = require('./officeStrategy');
-const CloudStrategy = require('../cloudStrategy');
-
-
 module.exports = {
 
     // this pulls daily punch counts for the reminders. it combines shared file with local count
@@ -49,6 +43,6 @@ module.exports = {
 function getSharedPunchCount(returnedSettings) {
     return new Promise(function (resolve, reject) {
         // get the number of punches today
-        resolve(returnedSettings);
+        resolve(10);
     });
 }

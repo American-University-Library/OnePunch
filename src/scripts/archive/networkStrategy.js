@@ -43,7 +43,6 @@ module.exports = {
 
     // actually saves the log
     enterLog: function (settingsLogObject,window) {
-        console.log('firing enter log')
         return new Promise(function (resolve, reject) {
             const logPath = settingsLogObject.logPath.primary;
             const secondaryLogPath = settingsLogObject.logPath.secondary;

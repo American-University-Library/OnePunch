@@ -9,12 +9,12 @@ const warnIconPath = window.preload.getWarnIconPath();
 
 document.getElementById("saveBtn").addEventListener("click", async () => {
   try {
-    let deskNameEntry =
+/*     let deskNameEntry =
       document.getElementById("deskPicker").value === ""
         ? "desk"
         : document.getElementById("deskPicker").value;
     let deskName = deskNameEntry.trim();
-    deskName = deskName.replace(/[\uE000-\uF8FF]/g, "");
+    deskName = deskName.replace(/[\uE000-\uF8FF]/g, ""); */
     let hotKeyChoice = document.querySelector(
       'input[name="hotKey"]:checked'
     ).value;
@@ -39,7 +39,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
         location
       );
       await window.preload.setSetting("logPath", logPath);
-      await window.preload.setSetting("deskName", deskName);
+      // await window.preload.setSetting("deskName", deskName);
       await window.preload.setSetting("hotKey", hotKeyChoice);
       await window.preload.setSetting("reminders", remindersChoice);
       await window.preload.setSetting("assumeDisconnected", assumeDisconnected);

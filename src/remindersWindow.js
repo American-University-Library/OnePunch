@@ -1,5 +1,3 @@
-updateCount();
-
 window.preload.on('updateCount', (owlPicked) => {
     updateCount();
 });
@@ -7,7 +5,7 @@ window.preload.on('updateCount', (owlPicked) => {
 const updateCount = async () => {
 
     const returnedSettings = await window.preload.getSettings();
-    const dailyPunchCountObj = window.preload.Reminders(returnedSettings);
+    const dailyPunchCountObj = await window.preload.Reminders(returnedSettings);
     let selectedIcon = returnedSettings.selectedIcon || "owl_ico";
     let icon128Path = "../images/" + selectedIcon + "_128.png";
     document.getElementById("remindersImage").src = icon128Path;
@@ -32,3 +30,5 @@ const updateCount = async () => {
         }
     }
 }
+
+updateCount();
