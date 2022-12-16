@@ -40,7 +40,24 @@ contextBridge.exposeInMainWorld(
     'preload', {
     LogText: (window, source) => LogText.logText(window, source),
     MoveLocalText: window => MoveLocalText.moveText(window),
-    Reports: (startDate, endDate, showDetailByDesk, showDetailByHour, savePath, window) => Reports.generateReport(startDate, endDate, showDetailByDesk, showDetailByHour, savePath, window),
+    Reports: async (startDate, endDate, showDetailByDesk, showDetailByHour, savePath, window) => {
+            try {
+                const returnedSettings = await electronSettings.get();
+                const all = true;
+                const url = `${returnedSettings.logPath}&start_date=${startDate}&end_date=${endDate}&all=${all}`
+                const response = await axios.get(url);
+                const cloudData = response.data;
+                let localData = [];
+                if (returnedSettings.localLogs) {
+                    localData = returnedSettings.localLogs;
+                }
+                Reports.generateReport(startDate, endDate, showDetailByDesk, showDetailByHour, savePath, cloudData, localData, window)
+                return;
+            } catch (err) {
+                console.log(err);
+            }
+        
+    },
     GetLogLocations: (location) => GetLogLocations.getLogLocations(location),
     FileDialog: () => FileDialog.getFolder(),
     WindowsNotifications: (notificationTitle, notificationText, icon, hangTime, altNotifications, window) => WindowsNotifications.notify(notificationTitle, notificationText, icon, hangTime, altNotifications, window),

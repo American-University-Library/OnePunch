@@ -9,16 +9,16 @@ module.exports = {
 
 
 
-    generateReport: async (startDate, endDate, showDetailByDesk, showDetailByHour, savePath, window) => {
+    generateReport: async (startDate, endDate, showDetailByDesk, showDetailByHour, savePath, cloudData, localData, window) => {
         try {
             let returnedSettings;
             const settings = await window.preload.getSettings()
             returnedSettings = { ...settings }
-            const unsortedObjectArray = await getReportData(startDate, endDate, showDetailByDesk, showDetailByHour, returnedSettings);
+/*          const unsortedObjectArray = await getReportData(startDate, endDate, showDetailByDesk, showDetailByHour, returnedSettings);
             const objectArray = await sortLogObjectArray(unsortedObjectArray, showDetailByDesk, showDetailByHour);
             const totalsArray = await processObjectsToTotals(objectArray, showDetailByDesk, showDetailByHour);
             const reportingComplete = await writeTotalsToCsv(totalsArray, savePath, showDetailByDesk, showDetailByHour, startDate, endDate);
-            return reportingComplete;
+            return reportingComplete; */
         } catch (error) {
             if (error === "connection error") {
                 window.preload.WindowsNotifications("Cannot connect!", "Please connect to network drive", "exclamation_mark_64.png", 3500, returnedSettings.altNotifications, window);

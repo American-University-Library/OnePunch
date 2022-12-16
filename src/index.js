@@ -249,7 +249,7 @@ var startPicker = new Pikaday({
     let day = date.getDate();
     let month = date.getMonth() + 1;
     let year = date.getFullYear();
-    return `${month}/${day}/${year}`;
+    return `${month}-${day}-${year}`;
   },
   parse(dateString, format) {
     // dateString is the result of `toString` method
@@ -270,7 +270,7 @@ var endPicker = new Pikaday({
     let day = date.getDate();
     let month = date.getMonth() + 1;
     let year = date.getFullYear();
-    return `${month}/${day}/${year}`;
+    return `${month}-${day}-${year}`;
   },
   parse(dateString, format) {
     // dateString is the result of `toString` method
