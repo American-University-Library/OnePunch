@@ -198,8 +198,14 @@ document.getElementById("moveLocalBtn").addEventListener("click", async () => {
 document
   .getElementById("generateReportBtn")
   .addEventListener("click", async () => {
-    let showDetailByDesk = document.getElementById("deskCheck").checked;
-    let showDetailByHour = document.getElementById("hourCheck").checked;
+    let myDeskOnly = document.getElementById("myDesk").checked;
+    const timeRadios = document.getElementsByName('time');
+    let timeDetail = 'day';
+    timeRadios.forEach(radio => {
+      if(radio.checked) {
+        timeDetail = radio.value
+      }
+    });
     let startDate = document.getElementById("startDate").value;
     let endDate = document.getElementById("endDate").value;
     let savePath = document.getElementById("savePath").value;
@@ -207,8 +213,8 @@ document
       const reportingComplete = await Reports(
         startDate,
         endDate,
-        showDetailByDesk,
-        showDetailByHour,
+        myDeskOnly,
+        timeDetail,
         savePath,
         window
       );

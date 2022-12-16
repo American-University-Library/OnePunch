@@ -40,29 +40,39 @@ contextBridge.exposeInMainWorld(
     'preload', {
     LogText: (window, source) => LogText.logText(window, source),
     MoveLocalText: window => MoveLocalText.moveText(window),
-    Reports: async (startDate, endDate, showDetailByDesk, showDetailByHour, savePath, window) => {
-            try {
-                const returnedSettings = await electronSettings.get();
-                const all = true;
-                const url = `${returnedSettings.logPath}&start_date=${startDate}&end_date=${endDate}&all=${all}`
-                const response = await axios.get(url);
-                const cloudData = response.data;
-                let localData = [];
-                if (returnedSettings.localLogs) {
-                    localData = returnedSettings.localLogs;
-                }
-                Reports.generateReport(startDate, endDate, showDetailByDesk, showDetailByHour, savePath, cloudData, localData, window)
-                return;
-            } catch (err) {
-                console.log(err);
+    Reports: async (startDate,
+        endDate,
+        myDeskOnly,
+        timeDetail,
+        savePath,
+        window) => {
+        try {
+            const returnedSettings = await electronSettings.get();
+            const all = !myDeskOnly;
+            const url = `${returnedSettings.logPath}&start_date=${startDate}&end_date=${endDate}&all=${all}`
+            const response = await axios.get(url);
+            const cloudData = response.data;
+            let localData = [];
+            if (returnedSettings.localLogs) {
+                localData = returnedSettings.localLogs;
             }
-        
+            const reportingComplete = await Reports.generateReport(
+                timeDetail,
+                savePath,
+                cloudData,
+                localData,
+                window)
+            return reportingComplete;
+        } catch (err) {
+            console.log(err);
+            return false;
+        }
     },
     GetLogLocations: (location) => GetLogLocations.getLogLocations(location),
     FileDialog: () => FileDialog.getFolder(),
     WindowsNotifications: (notificationTitle, notificationText, icon, hangTime, altNotifications, window) => WindowsNotifications.notify(notificationTitle, notificationText, icon, hangTime, altNotifications, window),
     Reminders: () => {
-        return new Promise( async (resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
                 const returnedSettings = await electronSettings.get();
                 const response = await axios.get(returnedSettings.logPath);

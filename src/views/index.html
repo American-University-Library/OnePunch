@@ -117,13 +117,53 @@
         <h2>Detail Level</h2>
       </div>
       <div class="ui slider checkbox twelve wide column">
-        <input id="deskCheck" type="checkbox" name="details" checked />
-        <label>By Desk</label>
+        <input id="myDesk" type="checkbox" name="myDesk" checked />
+        <label for="myDesk">My Desk Only</label>
       </div>
-      <div class="ui slider checkbox twelve wide column">
-        <input id="hourCheck" type="checkbox" name="details" />
-        <label>By Hour</label>
+      <div class="fourteen wide column">
+        <h2>Detail Level</h2>
       </div>
+
+      <div class="inline fields ui checkbox twelve wide column">
+        <div class="field">
+          <div class="ui radio checkbox">
+            <input
+              type="radio"
+              name="time"
+              id="time_day"
+              checked
+              value="day"
+              class="hidden"
+            />
+            <label for="time_day">Summarize By Day</label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui radio checkbox">
+            <input
+              type="radio"
+              name="time"
+              id="time_hour"
+              value="hour"
+              class="hidden"
+            />
+            <label for="time_hour">Summarize By Hour</label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui radio checkbox">
+            <input
+              type="radio"
+              name="time"
+              id="time_raw"
+              value="raw"
+              class="hidden"
+            />
+            <label for="time_raw">Don't Summarize</label>
+          </div>
+        </div>
+      </div>
+
       <div class="fourteen wide column">
         <h2>Save Location</h2>
       </div>
@@ -146,8 +186,6 @@
       class="tabContent ui grid middle aligned centered"
       style="display: none"
     >
-
-
       <div class="fourteen wide column cloud storage" style="">
         <h2 class="tooltip">
           Data Storage<span class="tooltiptext"
