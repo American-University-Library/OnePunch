@@ -141,6 +141,12 @@ contextBridge.exposeInMainWorld(
         }
     },
     postLog: async () => {
+        // to send specific time post time as GMT
+        //    {
+        //        "date": "2022-12-22T14:38:51.087Z"      
+        //    }
+        
+        
         try {
             const returnedSettings = await electronSettings.get();
             const request = {

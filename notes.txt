@@ -1,0 +1,26 @@
+What does it need to do
+Send log to cloud from hotkey
+Send log to cloud from button on app
+Save log to local file
+Move local logs to cloud
+Pop up notification when log is submitted
+Show screen at random intervals with total punches
+Get report based on desk/hour/nothing
+Save report to desktop
+Choose Owlvator
+Set settings
+Save settings
+
+What functions does it need to be able to do this
+Register hotkey
+Post data from main
+Post Data from index page
+Save timestamp in array in settings file
+Loop over local logs and send them to server
+Pop up native notifications
+Pop up custom notifications
+Get totals from server for today, display on window, pop up window
+Get totals from server for defined date range process summarize data by desk/hour/nothing save report to desktop
+Choose Owlvator
+Set settings
+Save settings
