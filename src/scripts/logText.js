@@ -88,7 +88,10 @@ module.exports = {
             try {
 
                 const response = await window.preload.postLog();
-                WindowsNotifications.notify("Logged!", "Logged to shared file", selectedIconName, 2000, altNotifications, window)
+                if (!response) {
+                    throw new Error('Network Unavailable')
+                }
+                WindowsNotifications.notify("Logged!", "Logged to network", selectedIconName, 2000, altNotifications, window)
                 resolve(logObject);
             } catch (err) {
                 console.log('cloud post err', err)

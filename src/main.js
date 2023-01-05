@@ -101,6 +101,7 @@ function createSplashScreen() {
     splashScreen.once('ready-to-show', () => {
         splashScreen.show()
         setTimeout(function () {
+            createMainWindow();
             splashScreen.close();
         }, 1500);
     });
@@ -295,7 +296,7 @@ function createSettingsWindow() {
         icon: iconpath,
         webPreferences: {
             nodeIntegration: false,
-            //preload: path.join(app.getAppPath(), 'src/scripts/preload.js'),
+            preload: path.join(app.getAppPath(), 'src/scripts/preload.js'),
             preload: path.join(__dirname, 'scripts/preload.js'),
             enableRemoteModule: true
         }
@@ -378,7 +379,7 @@ app.on('ready', async () => {
             loopReminders(returnedSettings);
         }
         createSplashScreen();
-        createMainWindow()
+        // createMainWindow()
         // autoUpdater.checkForUpdates();
 
         tray = new Tray(iconpath)
@@ -527,8 +528,7 @@ ipcMain.on('settingsComplete', async (event, arg) => {
             loopReminders(returnedSettings);
         }
         createSplashScreen();
-        createMainWindow();
-        // settingsWindow.close();
+        settingsWindow.close();
         // autoUpdater.checkForUpdates();
         if (returnedSettings.showUpdateSummary) {
             createUpdateSummaryWindow();

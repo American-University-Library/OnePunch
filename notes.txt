@@ -24,3 +24,9 @@ Get totals from server for defined date range process summarize data by desk/hou
 Choose Owlvator
 Set settings
 Save settings
+
+Still Needed
+Offline logging
+Reconnect move items
+Add spinner to reminders window
+Find a way to stop trying to log to network when disconnected

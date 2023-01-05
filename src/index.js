@@ -119,7 +119,7 @@ window.preload.getSettings().then(async function (returnedSettings) {
   if (logsMoved !== false) {
     if (logsMoved > 0) {
       let notifyMessage =
-        "Moved " + logsMoved + " logs from local storage to shared file";
+        "Moved " + logsMoved + " logs from local storage to network";
       WindowsNotifications(
         "Update!",
         notifyMessage,
@@ -162,7 +162,7 @@ document.getElementById("moveLocalBtn").addEventListener("click", async () => {
   if (logsMoved !== false) {
     if (logsMoved > 0) {
       let notifyMessage =
-        "Moved " + logsMoved + " logs from local storage to shared file";
+        "Moved " + logsMoved + " logs from local storage to network";
       WindowsNotifications(
         "Update!",
         notifyMessage,
