@@ -21,7 +21,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     let remindersChoice = document.querySelector(
       'input[name="reminders"]:checked'
     ).value;
-    let chosenDir = document.getElementById("logPath").value;
+/*     let chosenDir = document.getElementById("logPath").value; */
     let assumeDisconnected = document.getElementById(
       "assumeDisconnectedCheck"
     ).checked;
@@ -31,7 +31,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     let keyEntry = document.getElementById("keyPicker").value;
     let key = keyEntry.trim();
 
-    let settingsObj = {};
+/*     let settingsObj = {}; */
     const location = [url, key];
     if (key != "" && url != "") {
 

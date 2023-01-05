@@ -20,7 +20,7 @@ module.exports = {
             return reportingComplete;
         } catch (error) {
             if (error === "connection error") {
-                window.preload.WindowsNotifications("Cannot connect!", "Please connect to network drive", "exclamation_mark_64.png", 3500, returnedSettings.altNotifications, window);
+                window.preload.WindowsNotifications("Cannot connect!", "Please connect to network", "exclamation_mark_64.png", 3500, returnedSettings.altNotifications, window);
             }
         }
     }

@@ -103,63 +103,27 @@ window.preload.getSettings().then(async function (returnedSettings) {
     assumeDisconnected;
   document.getElementById("currentHotKey").value = hotKey;
   document.getElementById("altNotifications").checked = altNotifications;
-  const logPath = returnedSettings.logPath.display || "Not defined";
+  const logPath = returnedSettings.logPath;
+  const logSplit = logPath.split("?key=");
+  document.getElementById('urlPicker').value = logSplit[0];
+  document.getElementById('keyPicker').value = logSplit[1];
+/*   const logPath = returnedSettings.logPath.display || "Not defined";
   const logPathValue = returnedSettings.logPath.display || "Not defined";
   document.getElementById("logPath").value = logPathValue;
 
   document.getElementById("cloudAuth").value = cloudAuth || "";
-  document.getElementById("cloudPath").value = cloudPath || "";
+  document.getElementById("cloudPath").value = cloudPath || ""; */
 
   // set the hotkey
   window.preload.registerHotKey(hotKey, window);
 
   // move any local logs
-  const logsMovedObj = await MoveLocalText(window);
-  let logsMoved = logsMovedObj.logsMoved;
-  if (logsMoved !== false) {
-    if (logsMoved > 0) {
-      let notifyMessage =
-        "Moved " + logsMoved + " logs from local storage to network";
-      WindowsNotifications(
-        "Update!",
-        notifyMessage,
-        selectedIconName,
-        3500,
-        altNotifications,
-        window
-      );
-    }
-  } else {
-    WindowsNotifications(
-      "Cannot connect!",
-      "Logs will save locally until connected to network drive",
-      "exclamation_mark_64.png",
-      3500,
-      altNotifications,
-      window
-    );
-  }
-
-
-
-});
-
-document.getElementById("logBtn").addEventListener("click", function () {
-  LogText(window, "add event listener");
-});
-
-document
-  .getElementById("checkTotalsBtn")
-  .addEventListener("click", function () {
-    window.preload.send("getCurrentCount");
-  });
-
-document.getElementById("moveLocalBtn").addEventListener("click", async () => {
-  const logsMovedObj = MoveLocalText(window);
-  let logsMoved = logsMovedObj.logsMoved;
-  let selectedIcon = logsMovedObj.selectedIcon;
-  let selectedIconName = selectedIcon + "_64.png";
-  if (logsMoved !== false) {
+  try {
+    const logsMovedObj = await MoveLocalText(window);
+    console.log('logmoved obj', logsMovedObj)
+    let logsMoved = logsMovedObj.logsMoved;
+    let selectedIcon = logsMovedObj.selectedIcon;
+    let selectedIconName = selectedIcon + "_64.png";
     if (logsMoved > 0) {
       let notifyMessage =
         "Moved " + logsMoved + " logs from local storage to network";
@@ -182,10 +146,61 @@ document.getElementById("moveLocalBtn").addEventListener("click", async () => {
         window
       );
     }
-  } else {
+  } catch (err) {
     WindowsNotifications(
       "Cannot connect!",
-      "Logs will save locally until connected to network drive",
+      "Logs will save locally until connected to network",
+      "exclamation_mark_64.png",
+      3500,
+      altNotifications,
+      window
+    );
+  }
+});
+
+document.getElementById("logBtn").addEventListener("click", function () {
+  LogText(window, "add event listener");
+});
+
+document
+  .getElementById("checkTotalsBtn")
+  .addEventListener("click", function () {
+    window.preload.send("getCurrentCount");
+  });
+
+document.getElementById("moveLocalBtn").addEventListener("click", async () => {
+  try {
+    const logsMovedObj = await MoveLocalText(window);
+    console.log('logmoved obj', logsMovedObj)
+    let logsMoved = logsMovedObj.logsMoved;
+    let selectedIcon = logsMovedObj.selectedIcon;
+    let selectedIconName = selectedIcon + "_64.png";
+    if (logsMoved > 0) {
+      let notifyMessage =
+        "Moved " + logsMoved + " logs from local storage to network";
+      WindowsNotifications(
+        "Update!",
+        notifyMessage,
+        selectedIconName,
+        3500,
+        altNotifications,
+        window
+      );
+    } else {
+      let notifyMessage = "No local logs to move";
+      WindowsNotifications(
+        "Update!",
+        notifyMessage,
+        selectedIconName,
+        3500,
+        altNotifications,
+        window
+      );
+    }
+  } catch (err) {
+    WindowsNotifications(
+      "Cannot connect!",
+      "Logs will save locally until connected to network",
       "exclamation_mark_64.png",
       3500,
       altNotifications,
@@ -202,7 +217,7 @@ document
     const timeRadios = document.getElementsByName('time');
     let timeDetail = 'day';
     timeRadios.forEach(radio => {
-      if(radio.checked) {
+      if (radio.checked) {
         timeDetail = radio.value
       }
     });
@@ -305,24 +320,36 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
       'input[name="reminders"]:checked'
     ).value;
     document.getElementById("currentHotKey").value = hotKeyChoice;
-    let chosenDir = document.getElementById("logPath").value;
-    let cloudPathEntry = document.getElementById("cloudPath").value;
+/*     let chosenDir = document.getElementById("logPath").value; */
+/*     let cloudPathEntry = document.getElementById("cloudPath").value;
     let cloudPath = cloudPathEntry.trim();
     cloudPath = cloudPath.replace(/[\uE000-\uF8FF]/g, "");
     let cloudAuthEntry = document.getElementById("cloudAuth").value;
     let cloudAuth = cloudAuthEntry.trim();
-    cloudAuth = cloudAuth.replace(/[\uE000-\uF8FF]/g, "");
+    cloudAuth = cloudAuth.replace(/[\uE000-\uF8FF]/g, ""); */
     // let deskNameEntry = document.getElementById("deskPicker").value;
     // let deskName = deskNameEntry.trim();
     // deskName = deskName.replace(/[\uE000-\uF8FF]/g, "");
+    let urlEntry = document.getElementById("urlPicker").value;
+    let url = urlEntry.trim();
+    let keyEntry = document.getElementById("keyPicker").value;
+    let key = keyEntry.trim();
+
+/*     let settingsObj = {}; */
+    const location = [url, key];
+
+/*     let settingsObj = {}; */
+    if (url != "" && key != "") {
+      const logPath = await window.preload.GetLogLocations(
+        location
+      );
+      
     let assumeDisconnected = document.getElementById(
       "assumeDisconnectedCheck"
     ).checked;
     let altNotifications = document.getElementById("altNotifications").checked;
-    let settingsObj = {};
-    if (cloudPath != "" && cloudAuth != "") {
-      const logPath = await GetLogLocations(chosenDir);
-      await window.preload.setSetting("logPath", logPath);
+/*       const logPath = await GetLogLocations(chosenDir);
+      await window.preload.setSetting("logPath", logPath); */
       //await window.preload.setSetting("deskName", deskName);
       await window.preload.setSetting("hotKey", hotKeyChoice);
       await window.preload.setSetting("reminders", remindersChoice);
@@ -335,8 +362,8 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
         "altNotifications",
         altNotifications
       );
-      await window.preload.setSetting("cloudPath", cloudPath);
-      await window.preload.setSetting("cloudAuth", cloudAuth);
+/*       await window.preload.setSetting("cloudPath", cloudPath);
+      await window.preload.setSetting("cloudAuth", cloudAuth); */
       window.preload.unregisterHotKey(currentHotKey);
       window.preload.registerHotKey(hotKeyChoice, window);
       window.preload.showMessageBox({
@@ -409,7 +436,7 @@ window.preload.on("reminderNotify", (dailyPunchCountObj) => {
     } else {
       WindowsNotifications(
         "Cannot connect!",
-        "Please connect to network drive",
+        "Please connect to network",
         "exclamation_mark_64.png",
         3500,
         altNotifications,

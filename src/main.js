@@ -576,7 +576,7 @@ ipcMain.on('showAboutWindow', function (event) {
 // after a new owl is picked message comes here to close the window
 // and then goes back to the main window to change the image
 ipcMain.on('owlSelected', function (event, selectedOwl) {
-    owlChoice.close();
+    // owlChoice.close();
     mainWindow.webContents.send('newOwl', selectedOwl);
 });
 

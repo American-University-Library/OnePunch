@@ -109,7 +109,7 @@ module.exports = {
                 } else {
                     WindowsNotifications.notify(
                         "Logged locally!",
-                        "Please connect to shared drive.",
+                        "Please connect to network.",
                         "exclamation_mark_64.png",
                         3500,
                         altNotifications,

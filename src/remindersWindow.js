@@ -1,4 +1,5 @@
 window.preload.on('updateCount', (owlPicked) => {
+    console.log('got update count', owlPicked)
     updateCount();
 });
 
@@ -18,7 +19,7 @@ const updateCount = async () => {
             document.getElementById('reminderLine2').textContent = "Keep on punching!";
         } else {
             document.getElementById('reminderLine1').textContent = "Cannot connect!";
-            document.getElementById('reminderLine2').textContent = "Please connect to network drive";
+            document.getElementById('reminderLine2').textContent = "Please connect to network";
         }
     }
 

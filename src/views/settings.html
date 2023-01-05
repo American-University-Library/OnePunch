@@ -34,15 +34,22 @@
         </div>
         <div class="twelve wide column">
             <div class="ui input large">
-                <input id="keyPicker" class="ui input large" name="userSetting" type="text" placeholder="Enter api key" />
+                <input id="keyPicker" class="ui input large" name="userSetting" type="text"
+                    placeholder="Enter api key" />
             </div>
         </div>
-
-
-
-        <input id="logPath" type="hidden" name="userSetting" value="">
+        <!--       
+        Leave this to build in validation logic
+        <div class="twelve wide column cloud storage" style="">
+            <button id="validateBtn" class="ui primary button fluid">
+            Validate and Save
+            </button>
+        </div>
+        <input id="logPath" type="hidden" name="userSetting" value="" /> -->
+        
         <div class="fourteen wide column">
-            <h2 class="tooltip">HotKey<span class="tooltiptext">Only one program is allowed to use a single hotkey at once. Be careful not to choose a key that's already being used elsewhere.</span></h2>
+            <h2 class="tooltip">HotKey<span class="tooltiptext">Only one program is allowed to use a single hotkey at
+                    once. Be careful not to choose a key that's already being used elsewhere.</span></h2>
         </div>
         <div class="twelve wide column">
             <div class="field">
@@ -60,7 +67,9 @@
             <input id="currentHotKey" type="hidden" name="userSetting" value="">
         </div>
         <div class="fourteen wide column">
-            <h2 class="tooltip">Reminders<span class="tooltiptext">Reminders will show about once an hour letting you know how many people your desk has helped that day. Popups are a new window in the center of the screen; notifications display in the lower corner.</span></h2>
+            <h2 class="tooltip">Reminders<span class="tooltiptext">Reminders will show about once an hour letting you
+                    know how many people your desk has helped that day. Popups are a new window in the center of the
+                    screen; notifications display in the lower corner.</span></h2>
         </div>
         <div class="twelve wide column">
             <div class="field">
@@ -68,7 +77,8 @@
                 <label for="">None</label>
             </div>
             <div class="field">
-                <input type="radio" name="reminders" value="notifications" id="notifyReminders" class="ui radio checkbox">
+                <input type="radio" name="reminders" value="notifications" id="notifyReminders"
+                    class="ui radio checkbox">
                 <label for="notifyReminders">Notifications</label>
             </div>
             <div class="field">
@@ -77,14 +87,16 @@
             </div>
         </div>
         <div class="fourteen wide column">
-            <h2 class="tooltip">Connection Status<span class="tooltiptext">This setting reduces connection error warnings. Use it for desks that won't usually be connected to the network.</span></h2>
+            <h2 class="tooltip">Connection Status<span class="tooltiptext">This setting reduces connection error
+                    warnings. Use it for desks that won't usually be connected to the network.</span></h2>
         </div>
         <div class="ui slider checkbox twelve wide column">
             <input id="assumeDisconnectedCheck" type="checkbox" name="details">
             <label>Assume No Connection</label>
         </div>
         <div class="fourteen wide column">
-            <h2 class="tooltip">Alt Notifications<span class="tooltiptext">This setting enables an alternative method for notification that might be needed depending on your Windows version.</span></h2>
+            <h2 class="tooltip">Alt Notifications<span class="tooltiptext">This setting enables an alternative method
+                    for notification that might be needed depending on your Windows version.</span></h2>
         </div>
         <div class="ui slider checkbox twelve wide column">
             <input id="altNotifications" type="checkbox" name="details">

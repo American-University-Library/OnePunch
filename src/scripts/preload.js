@@ -29,6 +29,7 @@ const Reminders = require('./reminders');
 const {
     settings
 } = require('cluster');
+const { stringify } = require('querystring');
 
 const setHotKey = (hotKey, window) => {
     globalShortcut.register(hotKey, () => {
@@ -129,7 +130,7 @@ contextBridge.exposeInMainWorld(
         return fetchedSettings;
     },
     setSetting: async (key, value) => {
-        const validKeys = ['showUpdateSummary', 'selectedIcon', 'logPath', 'deskName', 'hotKey', 'reminders', 'assumeDisconnected', 'altNotifications', 'initialized', 'localLogs'];
+        const validKeys = ['showUpdateSummary', 'selectedIcon', 'logPath', 'deskName', 'hotKey', 'reminders', 'assumeDisconnected', 'altNotifications', 'initialized', 'localLogs', 'disconnected'];
         if (validKeys.includes(key)) {
             await electronSettings.set(key, value);
         }
@@ -140,19 +141,26 @@ contextBridge.exposeInMainWorld(
             await electronSettings.unset(key);
         }
     },
-    postLog: async () => {
+    postLog: async (log, forcePost) => {
         // to send specific time post time as GMT
         //    {
         //        "date": "2022-12-22T14:38:51.087Z"      
         //    }
-        
-        
+
+
         try {
+            const data = {};
+            if (log) {
+                data.date = log;
+            }
             const returnedSettings = await electronSettings.get();
+            if (returnedSettings.disconnected && !forcePost) {
+                throw new Error('Disconnected');
+            }
             const request = {
                 method: 'post',
                 url: returnedSettings.logPath,
-                data: {}
+                data: data
             }
             const response = await axios(request);
             return response;
@@ -162,15 +170,19 @@ contextBridge.exposeInMainWorld(
         }
     },
     send: (channel, data) => {
-        let validChannels = ['getCurrentCount', 'remindersChanged', 'showOwlWindow', 'showAboutWindow', 'owlSelected', 'settingsComplete', 'electron-toaster-reply', 'electron-toaster-message'];
+        let validChannels = ['getCurrentCount', 'remindersChanged', 'showOwlWindow', 'showAboutWindow', 'owlSelected', 'settingsComplete', 'electron-toaster-reply', 'electron-toaster-message', 'newOwl'];
         if (validChannels.includes(channel)) {
             ipcRenderer.send(channel, data);
         }
     },
     on: (channel, func) => {
+        console.log('on', channel, func)
         let validChannels = ['reminderNotify', 'newOwl', 'updateCount'];
         if (validChannels.includes(channel)) {
-            ipcRenderer.on(channel, (event, ...args) => func(...args));
+            ipcRenderer.on(channel, (event, message) => {
+                console.log(JSON.stringify(event))
+                return message;
+            });
         }
     },
 
