@@ -32,12 +32,9 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     let key = keyEntry.trim();
 
 /*     let settingsObj = {}; */
-    const location = [url, key];
     if (key != "" && url != "") {
 
-      const logPath = await window.preload.GetLogLocations(
-        location
-      );
+      const logPath = await window.preload.GetLogLocations([url, key]);
       await window.preload.setSetting("logPath", logPath);
       // await window.preload.setSetting("deskName", deskName);
       await window.preload.setSetting("hotKey", hotKeyChoice);

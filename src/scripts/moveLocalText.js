@@ -9,7 +9,7 @@ module.exports = {
         return new Promise(async (resolve, reject) => {
             try {
                 const returnedSettings = await window.preload.getSettings();
-                let logsMoved = 0;
+/*                 let logsMoved = 0; */
                 settings = returnedSettings;
                 if (returnedSettings.localLogs) {
                     const localLogs = returnedSettings.localLogs;
@@ -39,7 +39,7 @@ module.exports = {
     }
 }
 
-const moveLocalText = (returnedSettings) => {
+/* const moveLocalText = (returnedSettings) => {
     return new Promise(function (resolve, reject) {
         const localLogs = returnedSettings.localLogs;
         var len = localLogs.length;
@@ -65,10 +65,11 @@ const moveLocalText = (returnedSettings) => {
                 ":" +
                 currentMinuteString +/* 
           "," +
-          deskName + */
+          deskName +
                 "\r\n";
         });
         // load local logs
         resolve();
     });
 }
+ */

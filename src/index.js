@@ -7,33 +7,73 @@ const WindowsNotifications = window.preload.WindowsNotifications;
 
 const iconpath = window.preload.getIconPath();
 const warnIconPath = window.preload.getWarnIconPath();
+window.preload.receive("newOwl", owlIcon => {
+  console.log(`Received ${owlIcon} from main process`);
+  let icon128Path = "../images/" + owlIcon + "_128.png";
+  document.getElementById("mainOwlIconImage").src = icon128Path;
+});
+
+window.preload.receive("reminderNotify", (dailyPunchCountObj) => {
+  console.log('received message', dailyPunchCountObj)
+  let dailyPunchCount = dailyPunchCountObj.punchCount;
+  let selectedIcon = dailyPunchCountObj.selectedIcon || "owl_ico";
+  let selectedIconName = selectedIcon + "_64.png";
+  if (dailyPunchCountObj.sharedPunches !== false) {
+    let notificationTitle =
+      "You've helped " + dailyPunchCount + " people today!";
+    WindowsNotifications(
+      notificationTitle,
+      "Keep on punching!",
+      selectedIconName,
+      2000,
+      altNotifications,
+      window
+    );
+  } else {
+    if (dailyPunchCountObj.assumeDisconnected) {
+      let notificationTitle =
+        "You've helped " + dailyPunchCount + " people today!";
+      WindowsNotifications(
+        notificationTitle,
+        "Keep on punching!",
+        selectedIconName,
+        2000,
+        altNotifications,
+        window
+      );
+    } else {
+      WindowsNotifications(
+        "Cannot connect!",
+        "Please connect to network",
+        "exclamation_mark_64.png",
+        3500,
+        altNotifications,
+        window
+      );
+    }
+  }
+});
 
 // add tab elements, hide all but home tab
 
 const tabSettings = {
   settingsTab: {
-    style: [
-      {
-        name: "overflowY",
-        value: "scroll",
-      },
-    ],
+    style: [{
+      name: "overflowY",
+      value: "scroll",
+    }, ],
   },
   homeTab: {
-    style: [
-      {
-        name: "overflowY",
-        value: "hidden",
-      },
-    ],
+    style: [{
+      name: "overflowY",
+      value: "hidden",
+    }, ],
   },
   reportsTab: {
-    style: [
-      {
-        name: "overflowY",
-        value: "hidden",
-      },
-    ],
+    style: [{
+      name: "overflowY",
+      value: "hidden",
+    }, ],
   },
 };
 
@@ -59,6 +99,7 @@ document.querySelectorAll(".tabControl").forEach(function (tabCtrl) {
 
 const appVersion = window.preload.getVersion();
 document.getElementById("appVersion").textContent = "v " + appVersion;
+
 //const monitorScreen = screen.getPrimaryDisplay();
 
 // add vertical scroll bars for small screens
@@ -66,6 +107,7 @@ document.getElementById("appVersion").textContent = "v " + appVersion;
 if (monitorScreenHeight < 925) {
     document.body.style.overflowY = "scroll";
 }*/
+
 
 // load all settings, fill out the settings tab with those values, set the hotkey, and move any local logs
 window.preload.getSettings().then(async function (returnedSettings) {
@@ -77,10 +119,10 @@ window.preload.getSettings().then(async function (returnedSettings) {
   let assumeDisconnected = returnedSettings.assumeDisconnected || false;
   altNotifications = returnedSettings.altNotifications || false;
   let selectedIcon = returnedSettings.selectedIcon || "owl_ico";
-  let selectedIconName = selectedIcon + "_64.png";
+/*   let selectedIconName = selectedIcon + "_64.png"; */
   let icon128Path = "../images/" + selectedIcon + "_128.png";
-  let cloudPath = returnedSettings.cloudPath;
-  let cloudAuth = returnedSettings.cloudAuth;
+/*   let cloudPath = returnedSettings.cloudPath;
+  let cloudAuth = returnedSettings.cloudAuth; */
 
   // fill out the settings tab with those settings
   document.getElementById("mainOwlIconImage").src = icon128Path;
@@ -107,12 +149,12 @@ window.preload.getSettings().then(async function (returnedSettings) {
   const logSplit = logPath.split("?key=");
   document.getElementById('urlPicker').value = logSplit[0];
   document.getElementById('keyPicker').value = logSplit[1];
-/*   const logPath = returnedSettings.logPath.display || "Not defined";
-  const logPathValue = returnedSettings.logPath.display || "Not defined";
-  document.getElementById("logPath").value = logPathValue;
+  /*   const logPath = returnedSettings.logPath.display || "Not defined";
+    const logPathValue = returnedSettings.logPath.display || "Not defined";
+    document.getElementById("logPath").value = logPathValue;
 
-  document.getElementById("cloudAuth").value = cloudAuth || "";
-  document.getElementById("cloudPath").value = cloudPath || ""; */
+    document.getElementById("cloudAuth").value = cloudAuth || "";
+    document.getElementById("cloudPath").value = cloudPath || ""; */
 
   // set the hotkey
   window.preload.registerHotKey(hotKey, window);
@@ -320,13 +362,13 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
       'input[name="reminders"]:checked'
     ).value;
     document.getElementById("currentHotKey").value = hotKeyChoice;
-/*     let chosenDir = document.getElementById("logPath").value; */
-/*     let cloudPathEntry = document.getElementById("cloudPath").value;
-    let cloudPath = cloudPathEntry.trim();
-    cloudPath = cloudPath.replace(/[\uE000-\uF8FF]/g, "");
-    let cloudAuthEntry = document.getElementById("cloudAuth").value;
-    let cloudAuth = cloudAuthEntry.trim();
-    cloudAuth = cloudAuth.replace(/[\uE000-\uF8FF]/g, ""); */
+    /*     let chosenDir = document.getElementById("logPath").value; */
+    /*     let cloudPathEntry = document.getElementById("cloudPath").value;
+        let cloudPath = cloudPathEntry.trim();
+        cloudPath = cloudPath.replace(/[\uE000-\uF8FF]/g, "");
+        let cloudAuthEntry = document.getElementById("cloudAuth").value;
+        let cloudAuth = cloudAuthEntry.trim();
+        cloudAuth = cloudAuth.replace(/[\uE000-\uF8FF]/g, ""); */
     // let deskNameEntry = document.getElementById("deskPicker").value;
     // let deskName = deskNameEntry.trim();
     // deskName = deskName.replace(/[\uE000-\uF8FF]/g, "");
@@ -335,25 +377,24 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     let keyEntry = document.getElementById("keyPicker").value;
     let key = keyEntry.trim();
 
-/*     let settingsObj = {}; */
-    const location = [url, key];
+    /*     let settingsObj = {}; */
 
-/*     let settingsObj = {}; */
+    /*     let settingsObj = {}; */
     if (url != "" && key != "") {
-      const logPath = await window.preload.GetLogLocations(
-        location
-      );
-      
-    let assumeDisconnected = document.getElementById(
-      "assumeDisconnectedCheck"
-    ).checked;
-    let altNotifications = document.getElementById("altNotifications").checked;
-/*       const logPath = await GetLogLocations(chosenDir);
-      await window.preload.setSetting("logPath", logPath); */
+      const logPath = await window.preload.GetLogLocations([url, key]);
+
+      let assumeDisconnected = document.getElementById(
+        "assumeDisconnectedCheck"
+      ).checked;
+      let altNotifications = document.getElementById("altNotifications").checked;
+      /*       const logPath = await GetLogLocations(chosenDir);
+            await window.preload.setSetting("logPath", logPath); */
       //await window.preload.setSetting("deskName", deskName);
       await window.preload.setSetting("hotKey", hotKeyChoice);
       await window.preload.setSetting("reminders", remindersChoice);
+      await window.preload.setSetting("reminders", remindersChoice);
       window.preload.send("remindersChanged");
+      await window.preload.setSetting("logPath", logPath);
       await window.preload.setSetting(
         "assumeDisconnected",
         assumeDisconnected
@@ -362,8 +403,8 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
         "altNotifications",
         altNotifications
       );
-/*       await window.preload.setSetting("cloudPath", cloudPath);
-      await window.preload.setSetting("cloudAuth", cloudAuth); */
+      /*       await window.preload.setSetting("cloudPath", cloudPath);
+            await window.preload.setSetting("cloudAuth", cloudAuth); */
       window.preload.unregisterHotKey(currentHotKey);
       window.preload.registerHotKey(hotKeyChoice, window);
       window.preload.showMessageBox({
@@ -397,57 +438,22 @@ document.getElementById("showAbout").addEventListener("click", function () {
   window.preload.send("showAboutWindow");
 });
 
-document.getElementById("validateBtn").addEventListener("click", () => {
+// save for validation
+/* document.getElementById("validateBtn").addEventListener("click", () => {
   let cloudPathEntry = document.getElementById("cloudPath").value;
   let cloudPath = cloudPathEntry.trim();
   cloudPath = cloudPath.replace(/[\uE000-\uF8FF]/g, "");
   let cloudAuthEntry = document.getElementById("cloudAuth").value;
   let cloudAuth = cloudAuthEntry.trim();
   cloudAuth = cloudAuth.replace(/[\uE000-\uF8FF]/g, "");
-});
+}); */
 
-window.preload.on("reminderNotify", (dailyPunchCountObj) => {
-  let dailyPunchCount = dailyPunchCountObj.punchCount;
-  let selectedIcon = dailyPunchCountObj.selectedIcon || "owl_ico";
-  let selectedIconName = selectedIcon + "_64.png";
-  if (dailyPunchCountObj.sharedPunches !== false) {
-    let notificationTitle =
-      "You've helped " + dailyPunchCount + " people today!";
-    WindowsNotifications(
-      notificationTitle,
-      "Keep on punching!",
-      selectedIconName,
-      2000,
-      altNotifications,
-      window
-    );
-  } else {
-    if (dailyPunchCountObj.assumeDisconnected) {
-      let notificationTitle =
-        "You've helped " + dailyPunchCount + " people today!";
-      WindowsNotifications(
-        notificationTitle,
-        "Keep on punching!",
-        selectedIconName,
-        2000,
-        altNotifications,
-        window
-      );
-    } else {
-      WindowsNotifications(
-        "Cannot connect!",
-        "Please connect to network",
-        "exclamation_mark_64.png",
-        3500,
-        altNotifications,
-        window
-      );
-    }
-  }
-});
+// Not sure what this does...
 
-// change the main icon after user selects a new image
+
+
+/* // change the main icon after user selects a new image
 window.preload.on("newOwl", (owlPicked) => {
   let icon128Path = "../images/" + owlPicked + "_128.png";
   document.getElementById("mainOwlIconImage").src = icon128Path;
-});
+}); */

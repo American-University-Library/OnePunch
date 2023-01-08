@@ -20,11 +20,11 @@ const path = require('path');
 const {
     autoUpdater
 } = require("electron-updater");
-const Reminders = require('./scripts/reminders');
+/* const Reminders = require('./scripts/reminders'); */
 const os = require('os');
 app.preventExit = true;
 
-const appFolder = path.dirname(process.execPath)
+/* const appFolder = path.dirname(process.execPath) */
 const exeName = path.basename(process.execPath)
 
 app.setLoginItemSettings({
@@ -470,6 +470,7 @@ autoUpdater.on('update-downloaded', () => {
 
 
 function genReminders(returnedSettings) {
+    console.log('in gen reminders')
     let reminderType = returnedSettings.reminders
     if (reminderType == "popups") {
         createRemindersWindow();
@@ -479,12 +480,13 @@ function genReminders(returnedSettings) {
 }
 
 function loopReminders(returnedSettings) {
+    console.log('in loop reminders')
     // the regular reminder interval is between 40 and 80 minutes
     // the commented interval between 10 and 20 seconds is left in for testing
-    let reminderLagMinutes = Math.floor(Math.random() * (80 - 40 + 1) + 40);
-    let reminderLagMs = 1000 * 60 * reminderLagMinutes;
-    // let reminderLagMinutes = Math.floor(Math.random() * (20 - 10 + 1) + 10);
-    // let reminderLagMs = 1000 * reminderLagMinutes;
+    // let reminderLagMinutes = Math.floor(Math.random() * (80 - 40 + 1) + 40);
+    // let reminderLagMs = 1000 * 60 * reminderLagMinutes;
+    let reminderLagMinutes = Math.floor(Math.random() * (20 - 10 + 1) + 10);
+    let reminderLagMs = 1000 * reminderLagMinutes;
     remindersTimeout = setTimeout(function () {
         genReminders(returnedSettings);
         loopReminders(returnedSettings);
@@ -493,6 +495,7 @@ function loopReminders(returnedSettings) {
 
 // notification reminders are managed from the main process
 const createNotificationReminder = async () => {
+    console.log('in notification')
 
     try {
         const returnedSettings = await settings.get();
@@ -513,6 +516,7 @@ const createNotificationReminder = async () => {
         };
         dailyPunchCountObj.assumeDisconnected = returnedSettings.assumeDisconnected;
         dailyPunchCountObj.selectedIcon = returnedSettings.selectedIcon;
+        console.log('daily punch count object', dailyPunchCountObj)
         mainWindow.webContents.send('reminderNotify', dailyPunchCountObj);
     } catch (err) {
         console.log(err)
@@ -576,7 +580,8 @@ ipcMain.on('showAboutWindow', function (event) {
 // after a new owl is picked message comes here to close the window
 // and then goes back to the main window to change the image
 ipcMain.on('owlSelected', function (event, selectedOwl) {
-    // owlChoice.close();
+    console.log('in owl selected in main', selectedOwl)
+    owlChoice.close();
     mainWindow.webContents.send('newOwl', selectedOwl);
 });
 

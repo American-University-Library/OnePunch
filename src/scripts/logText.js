@@ -1,11 +1,11 @@
 const settings = require('electron-settings');
-const SaveLocalLog = require('./saveLocalLog')
+/* const SaveLocalLog = require('./saveLocalLog') */
 const WindowsNotifications = require('./windowsNotifications')
 
 // the logObject has a weekday, month, date (00 - 31), year, hour (00 - 23), minute (00 - 60), and desk name
 // It's returned as an object attached to the settings object to make the settings available down the promise chain
 
-function generateLogObject(returnedSettings) {
+/* function generateLogObject(returnedSettings) {
     return new Promise(function (resolve, reject) {
         // const deskName = returnedSettings.deskName;
         const weekday = new Array(7);
@@ -43,7 +43,7 @@ function generateLogObject(returnedSettings) {
         returnedSettings.logObject = logObject
         resolve(returnedSettings);
     });
-}
+} */
 
 module.exports = {
 
@@ -56,21 +56,21 @@ module.exports = {
         return new Promise(async (resolve, reject) => {
 
             const returnedSettings = await settings.get();
-            const settingsLogObject = await generateLogObject(returnedSettings);
-            const logObject = settingsLogObject.logObject;
-            const assumeDisconnected = settingsLogObject.assumeDisconnected;
-            const selectedIcon = settingsLogObject.selectedIcon || "owl_ico";
+/*             const settingsLogObject = await generateLogObject(returnedSettings);
+            const logObject = settingsLogObject.logObject; */
+            const assumeDisconnected = returnedSettings.assumeDisconnected;
+            const selectedIcon = returnedSettings.selectedIcon || "owl_ico";
             const selectedIconName = selectedIcon + "_64.png";
-            // const altNotifications = settingsLogObject.altNotifications || false;
+            // const altNotifications = returnedSettings.altNotifications || false;
             const altNotifications = false;
-            const currentWeekday = logObject.currentWeekday;
+/*             const currentWeekday = logObject.currentWeekday;
             const currentMonth = logObject.currentMonth;
             const currentDateString = logObject.currentDateString;
             const currentYear = logObject.currentYear;
             const currentHour = logObject.currentHour;
-            const currentMinuteString = logObject.currentMinuteString;
+            const currentMinuteString = logObject.currentMinuteString; */
             // const deskName = logObject.deskName;
-            const logText =
+/*             const logText =
                 currentWeekday +
                 "," +
                 currentMonth +
@@ -81,10 +81,10 @@ module.exports = {
                 "," +
                 currentHour +
                 ":" +
-                currentMinuteString +/* 
+                currentMinuteString +
                 "," +
-                deskName + */
-                "\r\n";
+                deskName + 
+                "\r\n"; */
             try {
 
                 const response = await window.preload.postLog();
@@ -92,10 +92,10 @@ module.exports = {
                     throw new Error('Network Unavailable')
                 }
                 WindowsNotifications.notify("Logged!", "Logged to network", selectedIconName, 2000, altNotifications, window)
-                resolve(logObject);
+                resolve(true);
             } catch (err) {
                 console.log('cloud post err', err)
-                const logObject = await SaveLocalLog.saveLocalLog(settingsLogObject, window);
+                await saveLocalLog(returnedSettings, window);
                 if (assumeDisconnected) {
                     WindowsNotifications.notify(
                         "Logged!",
@@ -105,7 +105,7 @@ module.exports = {
                         altNotifications,
                         window
                     );
-                    resolve(logObject);
+                    resolve(true);
                 } else {
                     WindowsNotifications.notify(
                         "Logged locally!",
@@ -115,7 +115,7 @@ module.exports = {
                         altNotifications,
                         window
                     );
-                    resolve(logObject);
+                    resolve(true);
                 }
             }
 
@@ -124,4 +124,23 @@ module.exports = {
 
         });
     }
+}
+
+const saveLocalLog = async (returnedSettings, window) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const date = new Date().toUTCString();
+            let localLogs = [];
+            if (returnedSettings.localLogs) {
+                localLogs = returnedSettings.localLogs
+            }
+            localLogs.push(date);
+            await window.preload.setSetting('localLogs', localLogs);
+            await window.preload.setSetting('disconnected', true);
+            resolve(true);
+        } catch(err) {
+            console.log(err)
+            reject(false)
+        }
+    })
 }

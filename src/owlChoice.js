@@ -1,6 +1,6 @@
 // highlight the currently selected owl
 window.preload.getSettings().then(function ({ selectedIcon }) {
-    var selectedIconId = selectedIcon || "owl_ico";
+/*     var selectedIconId = selectedIcon || "owl_ico"; */
     var owlIcons = document.querySelectorAll(".owlIcon");
     for (var i = 0; i < owlIcons.length; i++) {
         if (owlIcons[i].id == selectedIcon) {
@@ -29,6 +29,6 @@ document.body.addEventListener("click", function (event) {
 // and change the icon in the main window
 document.getElementById("saveBtn").addEventListener("click", async () => {
     let selectedIcon = document.getElementById('selectedOwl').value
-    const settingSaved = await window.preload.setSetting('selectedIcon', selectedIcon);
+    await window.preload.setSetting('selectedIcon', selectedIcon);
     window.preload.send('owlSelected', selectedIcon);
 });

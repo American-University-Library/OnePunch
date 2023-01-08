@@ -30,3 +30,5 @@ Offline logging
 Reconnect move items
 Add spinner to reminders window
 Find a way to stop trying to log to network when disconnected
+Figure out what reminder notify does
+confirm disconnected/connected in settings is being adjusted correctly
