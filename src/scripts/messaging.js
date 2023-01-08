@@ -2,7 +2,6 @@ module.exports = {
     logText: () => {},
     moveLocalText: () => {},
     reports: () => {},
-    getLogLocations: () => {},
     fileDialog: () => {},
     windowsNotifications: () => {},
     reminders: () => {},

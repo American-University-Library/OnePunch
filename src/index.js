@@ -1,20 +1,17 @@
 const LogText = window.preload.LogText;
 const MoveLocalText = window.preload.MoveLocalText;
 const Reports = window.preload.Reports;
-const GetLogLocations = window.preload.GetLogLocations;
 const FileDialog = window.preload.FileDialog;
 const WindowsNotifications = window.preload.WindowsNotifications;
 
 const iconpath = window.preload.getIconPath();
 const warnIconPath = window.preload.getWarnIconPath();
 window.preload.receive("newOwl", owlIcon => {
-  console.log(`Received ${owlIcon} from main process`);
   let icon128Path = "../images/" + owlIcon + "_128.png";
   document.getElementById("mainOwlIconImage").src = icon128Path;
 });
 
 window.preload.receive("reminderNotify", (dailyPunchCountObj) => {
-  console.log('received message', dailyPunchCountObj)
   let dailyPunchCount = dailyPunchCountObj.punchCount;
   let selectedIcon = dailyPunchCountObj.selectedIcon || "owl_ico";
   let selectedIconName = selectedIcon + "_64.png";
@@ -114,19 +111,13 @@ window.preload.getSettings().then(async function (returnedSettings) {
 
   // load all the settings
   let hotKey = returnedSettings.hotKey || "F9";
-  // let deskName = returnedSettings.deskName || "Desk";
   let reminders = returnedSettings.reminders || false;
   let assumeDisconnected = returnedSettings.assumeDisconnected || false;
   altNotifications = returnedSettings.altNotifications || false;
   let selectedIcon = returnedSettings.selectedIcon || "owl_ico";
-/*   let selectedIconName = selectedIcon + "_64.png"; */
   let icon128Path = "../images/" + selectedIcon + "_128.png";
-/*   let cloudPath = returnedSettings.cloudPath;
-  let cloudAuth = returnedSettings.cloudAuth; */
-
   // fill out the settings tab with those settings
   document.getElementById("mainOwlIconImage").src = icon128Path;
-  // document.getElementById("deskPicker").value = deskName;
   document
     .querySelectorAll('input[name="hotKey"]')
     .forEach(function (radioBtn) {
@@ -149,20 +140,13 @@ window.preload.getSettings().then(async function (returnedSettings) {
   const logSplit = logPath.split("?key=");
   document.getElementById('urlPicker').value = logSplit[0];
   document.getElementById('keyPicker').value = logSplit[1];
-  /*   const logPath = returnedSettings.logPath.display || "Not defined";
-    const logPathValue = returnedSettings.logPath.display || "Not defined";
-    document.getElementById("logPath").value = logPathValue;
-
-    document.getElementById("cloudAuth").value = cloudAuth || "";
-    document.getElementById("cloudPath").value = cloudPath || ""; */
 
   // set the hotkey
   window.preload.registerHotKey(hotKey, window);
 
   // move any local logs
   try {
-    const logsMovedObj = await MoveLocalText(window);
-    console.log('logmoved obj', logsMovedObj)
+    const logsMovedObj = await MoveLocalText();
     let logsMoved = logsMovedObj.logsMoved;
     let selectedIcon = logsMovedObj.selectedIcon;
     let selectedIconName = selectedIcon + "_64.png";
@@ -189,6 +173,7 @@ window.preload.getSettings().then(async function (returnedSettings) {
       );
     }
   } catch (err) {
+    console.log(err)
     WindowsNotifications(
       "Cannot connect!",
       "Logs will save locally until connected to network",
@@ -212,8 +197,7 @@ document
 
 document.getElementById("moveLocalBtn").addEventListener("click", async () => {
   try {
-    const logsMovedObj = await MoveLocalText(window);
-    console.log('logmoved obj', logsMovedObj)
+    const logsMovedObj = await MoveLocalText();
     let logsMoved = logsMovedObj.logsMoved;
     let selectedIcon = logsMovedObj.selectedIcon;
     let selectedIconName = selectedIcon + "_64.png";
@@ -240,6 +224,7 @@ document.getElementById("moveLocalBtn").addEventListener("click", async () => {
       );
     }
   } catch (err) {
+    console.log(err)
     WindowsNotifications(
       "Cannot connect!",
       "Logs will save locally until connected to network",
@@ -362,34 +347,16 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
       'input[name="reminders"]:checked'
     ).value;
     document.getElementById("currentHotKey").value = hotKeyChoice;
-    /*     let chosenDir = document.getElementById("logPath").value; */
-    /*     let cloudPathEntry = document.getElementById("cloudPath").value;
-        let cloudPath = cloudPathEntry.trim();
-        cloudPath = cloudPath.replace(/[\uE000-\uF8FF]/g, "");
-        let cloudAuthEntry = document.getElementById("cloudAuth").value;
-        let cloudAuth = cloudAuthEntry.trim();
-        cloudAuth = cloudAuth.replace(/[\uE000-\uF8FF]/g, ""); */
-    // let deskNameEntry = document.getElementById("deskPicker").value;
-    // let deskName = deskNameEntry.trim();
-    // deskName = deskName.replace(/[\uE000-\uF8FF]/g, "");
     let urlEntry = document.getElementById("urlPicker").value;
     let url = urlEntry.trim();
     let keyEntry = document.getElementById("keyPicker").value;
     let key = keyEntry.trim();
-
-    /*     let settingsObj = {}; */
-
-    /*     let settingsObj = {}; */
     if (url != "" && key != "") {
-      const logPath = await window.preload.GetLogLocations([url, key]);
-
+      const logPath = url + "?key=" + key;
       let assumeDisconnected = document.getElementById(
         "assumeDisconnectedCheck"
       ).checked;
       let altNotifications = document.getElementById("altNotifications").checked;
-      /*       const logPath = await GetLogLocations(chosenDir);
-            await window.preload.setSetting("logPath", logPath); */
-      //await window.preload.setSetting("deskName", deskName);
       await window.preload.setSetting("hotKey", hotKeyChoice);
       await window.preload.setSetting("reminders", remindersChoice);
       await window.preload.setSetting("reminders", remindersChoice);
@@ -403,8 +370,6 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
         "altNotifications",
         altNotifications
       );
-      /*       await window.preload.setSetting("cloudPath", cloudPath);
-            await window.preload.setSetting("cloudAuth", cloudAuth); */
       window.preload.unregisterHotKey(currentHotKey);
       window.preload.registerHotKey(hotKeyChoice, window);
       window.preload.showMessageBox({
@@ -437,23 +402,3 @@ document.getElementById("mainOwlIcon").addEventListener("click", function () {
 document.getElementById("showAbout").addEventListener("click", function () {
   window.preload.send("showAboutWindow");
 });
-
-// save for validation
-/* document.getElementById("validateBtn").addEventListener("click", () => {
-  let cloudPathEntry = document.getElementById("cloudPath").value;
-  let cloudPath = cloudPathEntry.trim();
-  cloudPath = cloudPath.replace(/[\uE000-\uF8FF]/g, "");
-  let cloudAuthEntry = document.getElementById("cloudAuth").value;
-  let cloudAuth = cloudAuthEntry.trim();
-  cloudAuth = cloudAuth.replace(/[\uE000-\uF8FF]/g, "");
-}); */
-
-// Not sure what this does...
-
-
-
-/* // change the main icon after user selects a new image
-window.preload.on("newOwl", (owlPicked) => {
-  let icon128Path = "../images/" + owlPicked + "_128.png";
-  document.getElementById("mainOwlIconImage").src = icon128Path;
-}); */

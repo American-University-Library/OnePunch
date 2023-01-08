@@ -6,10 +6,7 @@ const {
     dialog,
     Tray,
     Menu,
-    globalShortcut,
-    fs,
-    ipcMain,
-    Notification
+    ipcMain
 } = require('electron');
 
 const settings = require('electron-settings');
@@ -20,7 +17,6 @@ const path = require('path');
 const {
     autoUpdater
 } = require("electron-updater");
-/* const Reminders = require('./scripts/reminders'); */
 const os = require('os');
 app.preventExit = true;
 
@@ -75,11 +71,11 @@ function createSplashScreen() {
     splashScreen = new BrowserWindow({
         width: 300,
         height: 300,
-        frame: true,
-        resizable: true,
+        frame: false,
+        resizable: false,
         center: true,
-        maximizable: true,
-        fullscreenable: true,
+        maximizable: false,
+        fullscreenable: false,
         title: "OnePunch",
         icon: iconpath,
         show: false,
@@ -90,7 +86,7 @@ function createSplashScreen() {
         }
     });
 
-    splashScreen.webContents.openDevTools()
+    /* splashScreen.webContents.openDevTools() */
 
     splashScreen.loadURL(url.format({
         pathname: path.join(__dirname, '/views/splash.html'),
@@ -202,10 +198,10 @@ function createOwlChoiceWindow() {
 
     owlChoice = new BrowserWindow({
         useContentSize: true,
-        resizable: true,
+        resizable: false,
         center: true,
-        maximizable: true,
-        fullscreenable: true,
+        maximizable: false,
+        fullscreenable: false,
         title: "OnePunch",
         icon: iconpath,
         width: 580,
@@ -218,7 +214,7 @@ function createOwlChoiceWindow() {
         }
     });
 
-    owlChoice.webContents.openDevTools()
+    /* owlChoice.webContents.openDevTools() */
 
     owlChoice.loadURL(url.format({
         pathname: path.join(__dirname, '/views/owlChoice.html'),
@@ -249,11 +245,11 @@ function createRemindersWindow() {
         remindersWindow = new BrowserWindow({
             width: 350,
             height: 475,
-            resizable: true,
+            resizable: false,
             show: true,
             center: true,
-            maximizable: true,
-            fullscreenable: true,
+            maximizable: false,
+            fullscreenable: false,
             title: "OnePunch",
             icon: iconpath,
             webPreferences: {
@@ -263,7 +259,7 @@ function createRemindersWindow() {
             }
         });
 
-        remindersWindow.webContents.openDevTools()
+        /* remindersWindow.webContents.openDevTools() */
 
         remindersWindow.loadURL(url.format({
             pathname: path.join(__dirname, '/views/reminder.html'),
@@ -302,7 +298,7 @@ function createSettingsWindow() {
         }
     });
 
-    settingsWindow.webContents.openDevTools()
+    /* settingsWindow.webContents.openDevTools() */
 
     settingsWindow.loadURL(url.format({
         pathname: path.join(__dirname, '/views/settings.html'),
@@ -334,7 +330,7 @@ function createMainWindow() {
     });
 
     //debugging
-    mainWindow.webContents.openDevTools()
+    /* mainWindow.webContents.openDevTools() */
 
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, '/views/index.html'),
@@ -470,7 +466,6 @@ autoUpdater.on('update-downloaded', () => {
 
 
 function genReminders(returnedSettings) {
-    console.log('in gen reminders')
     let reminderType = returnedSettings.reminders
     if (reminderType == "popups") {
         createRemindersWindow();
@@ -480,7 +475,6 @@ function genReminders(returnedSettings) {
 }
 
 function loopReminders(returnedSettings) {
-    console.log('in loop reminders')
     // the regular reminder interval is between 40 and 80 minutes
     // the commented interval between 10 and 20 seconds is left in for testing
     // let reminderLagMinutes = Math.floor(Math.random() * (80 - 40 + 1) + 40);
@@ -495,12 +489,10 @@ function loopReminders(returnedSettings) {
 
 // notification reminders are managed from the main process
 const createNotificationReminder = async () => {
-    console.log('in notification')
-
     try {
         const returnedSettings = await settings.get();
-
         const response = await axios.get(returnedSettings.logPath);
+        await settings.set('disconnected', false)
         const sharedPunchCount = response.data.length;
         let localPunches = 0;
         let sharedPunches = true;
@@ -516,9 +508,9 @@ const createNotificationReminder = async () => {
         };
         dailyPunchCountObj.assumeDisconnected = returnedSettings.assumeDisconnected;
         dailyPunchCountObj.selectedIcon = returnedSettings.selectedIcon;
-        console.log('daily punch count object', dailyPunchCountObj)
         mainWindow.webContents.send('reminderNotify', dailyPunchCountObj);
     } catch (err) {
+        await settings.set('disconnected', true)
         console.log(err)
     }
 }
@@ -580,7 +572,6 @@ ipcMain.on('showAboutWindow', function (event) {
 // after a new owl is picked message comes here to close the window
 // and then goes back to the main window to change the image
 ipcMain.on('owlSelected', function (event, selectedOwl) {
-    console.log('in owl selected in main', selectedOwl)
     owlChoice.close();
     mainWindow.webContents.send('newOwl', selectedOwl);
 });

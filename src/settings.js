@@ -1,7 +1,3 @@
-// Load library
-//const GetLogLocations = window.preload.GetLogLocations;
-//const FileDialog = window.preload.FileDialog;
-
 const iconpath = window.preload.getIconPath();
 const warnIconPath = window.preload.getWarnIconPath();
 
@@ -9,19 +5,12 @@ const warnIconPath = window.preload.getWarnIconPath();
 
 document.getElementById("saveBtn").addEventListener("click", async () => {
   try {
-/*     let deskNameEntry =
-      document.getElementById("deskPicker").value === ""
-        ? "desk"
-        : document.getElementById("deskPicker").value;
-    let deskName = deskNameEntry.trim();
-    deskName = deskName.replace(/[\uE000-\uF8FF]/g, ""); */
     let hotKeyChoice = document.querySelector(
       'input[name="hotKey"]:checked'
     ).value;
     let remindersChoice = document.querySelector(
       'input[name="reminders"]:checked'
     ).value;
-/*     let chosenDir = document.getElementById("logPath").value; */
     let assumeDisconnected = document.getElementById(
       "assumeDisconnectedCheck"
     ).checked;
@@ -30,13 +19,9 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     let url = urlEntry.trim();
     let keyEntry = document.getElementById("keyPicker").value;
     let key = keyEntry.trim();
-
-/*     let settingsObj = {}; */
     if (key != "" && url != "") {
-
-      const logPath = await window.preload.GetLogLocations([url, key]);
+      const logPath = url + "?key=" + key;
       await window.preload.setSetting("logPath", logPath);
-      // await window.preload.setSetting("deskName", deskName);
       await window.preload.setSetting("hotKey", hotKeyChoice);
       await window.preload.setSetting("reminders", remindersChoice);
       await window.preload.setSetting("assumeDisconnected", assumeDisconnected);
@@ -52,8 +37,8 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
         title: "Alert",
       });
     }
-  } catch (error) {
-    console.log("Failed!", error);
+  } catch (err) {
+    console.log(err);
   }
 });
 
