@@ -8,7 +8,7 @@ const updateCount = async () => {
     let icon128Path = "../images/" + selectedIcon + "_128.png";
     document.getElementById("remindersImage").src = icon128Path;
     try {
-        const dailyPunchCountObj = await window.preload.Reminders(returnedSettings);
+        const dailyPunchCountObj = await window.preload.reminders(returnedSettings);
         let dailyPunchCount = dailyPunchCountObj.punchCount;
         document.getElementById('reminderLine1').textContent = "Your desk has helped " + dailyPunchCount + " " + (dailyPunchCount > 1 || dailyPunchCount === 0 ? 'people' : 'person') + " so far today!";
         document.getElementById('reminderLine2').textContent = "Keep on punching!";

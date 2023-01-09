@@ -14,7 +14,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     let assumeDisconnected = document.getElementById(
       "assumeDisconnectedCheck"
     ).checked;
-    let altNotifications = document.getElementById("altNotifications").checked;
+    let altNotifications = false;
     let urlEntry = document.getElementById("urlPicker").value;
     let url = urlEntry.trim();
     let keyEntry = document.getElementById("keyPicker").value;
@@ -26,7 +26,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
       await window.preload.setSetting("reminders", remindersChoice);
       await window.preload.setSetting("assumeDisconnected", assumeDisconnected);
       await window.preload.setSetting("altNotifications", altNotifications);
-      await window.preload.setSetting("initialized", true);
+      await window.preload.setSetting("disconnected", false);
       await window.preload.send("settingsComplete");
     } else {
       window.preload.showMessageBox({

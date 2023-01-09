@@ -65,7 +65,7 @@
         </div>
         <div class="twelve wide column">
             <div class="field">
-                <input type="radio" name="reminders" value=false id="noReminders" class="ui radio checkbox" checked>
+                <input type="radio" name="reminders" value=false id="noReminders" class="ui radio checkbox">
                 <label for="">None</label>
             </div>
             <div class="field">
@@ -74,7 +74,7 @@
                 <label for="notifyReminders">Notifications</label>
             </div>
             <div class="field">
-                <input type="radio" name="reminders" value="popups" id="popUpReminders" class="ui radio checkbox">
+                <input type="radio" name="reminders" value="popups" id="popUpReminders" class="ui radio checkbox" checked>
                 <label for="ctrlAltF9">Pop-Ups</label>
             </div>
         </div>
@@ -85,14 +85,6 @@
         <div class="ui slider checkbox twelve wide column">
             <input id="assumeDisconnectedCheck" type="checkbox" name="details">
             <label>Assume No Connection</label>
-        </div>
-        <div class="fourteen wide column">
-            <h2 class="tooltip">Alt Notifications<span class="tooltiptext">This setting enables an alternative method
-                    for notification that might be needed depending on your Windows version.</span></h2>
-        </div>
-        <div class="ui slider checkbox twelve wide column">
-            <input id="altNotifications" type="checkbox" name="details">
-            <label>Enable Alt Notifications</label>
         </div>
         <div class="twelve wide column" style="padding: 20px 0px 5px 0px;">
             <button id="saveBtn" class="fluid ui purple button">Save</button>

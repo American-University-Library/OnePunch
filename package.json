@@ -18,11 +18,9 @@
   "author": "aspau",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.2.0",
+    "axios": "^1.2.2",
     "electron-settings": "^4.0.2",
-    "electron-updater": "^4.6.5",
-    "nodemon": "^2.0.20",
-    "os": "^0.1.2"
+    "electron-updater": "^4.6.5"
   },
   "build": {
     "appId": "com.app.onepunch",
@@ -44,8 +42,6 @@
   },
   "devDependencies": {
     "electron": "^13.6.9",
-    "electron-builder": "^22.14.13",
-    "electron-packager": "^15.5.1",
-    "electron-rebuild": "^2.3.5"
+    "electron-builder": "^22.14.13"
   }
 }

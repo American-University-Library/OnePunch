@@ -6,7 +6,8 @@ const {
     dialog,
     Tray,
     Menu,
-    ipcMain
+    ipcMain,
+    shell
 } = require('electron');
 
 const settings = require('electron-settings');
@@ -17,7 +18,6 @@ const path = require('path');
 const {
     autoUpdater
 } = require("electron-updater");
-const os = require('os');
 app.preventExit = true;
 
 /* const appFolder = path.dirname(process.execPath) */
@@ -104,7 +104,6 @@ function createSplashScreen() {
 
 
     splashScreen.on('closed', function () {
-
         splashScreen = null
     });
 }
@@ -118,10 +117,10 @@ function createUpdateSummaryWindow() {
     updateSummary = new BrowserWindow({
         width: 350,
         useContentSize: true,
-        resizable: false,
+        resizable: true,
         center: true,
-        maximizable: false,
-        fullscreenable: false,
+        maximizable: true,
+        fullscreenable: true,
         title: "OnePunch",
         icon: iconpath,
         show: false,
@@ -183,6 +182,8 @@ function createAboutWindow() {
     aboutWindow.once('ready-to-show', () => {
         aboutWindow.show();
     });
+
+    /* aboutWindow.webContents.openDevTools() */
 
     aboutWindow.on('closed', function () {
 
@@ -292,7 +293,6 @@ function createSettingsWindow() {
         icon: iconpath,
         webPreferences: {
             nodeIntegration: false,
-            preload: path.join(app.getAppPath(), 'src/scripts/preload.js'),
             preload: path.join(__dirname, 'scripts/preload.js'),
             enableRemoteModule: true
         }
@@ -329,7 +329,6 @@ function createMainWindow() {
         }
     });
 
-    //debugging
     /* mainWindow.webContents.openDevTools() */
 
     mainWindow.loadURL(url.format({
@@ -356,6 +355,54 @@ function createMainWindow() {
     mainWindow.setMenu(null);
 }
 
+const startAppWithSettings = async (returnedSettings, settingsWindow) => {
+    if (returnedSettings.reminders == "notifications" || returnedSettings.reminders == "popups") {
+        loopReminders(returnedSettings);
+    }
+    createSplashScreen();
+    if (settingsWindow) {
+        settingsWindow.close();
+    }
+
+    tray = new Tray(iconpath)
+    const contextMenu = Menu.buildFromTemplate([{
+        label: 'How are we doing today?',
+        click: function () {
+            if (returnedSettings.altNotifications) {
+                createRemindersWindow();
+            } else {
+                createNotificationReminder();
+            }
+        }
+    },
+    {
+        label: 'Open OnePunch',
+        click: function () {
+            mainWindow.show();
+        }
+    },
+    {
+        label: 'Quit',
+        click: function () {
+            app.isQuiting = true;
+            app.preventExit = false;
+            app.quit();
+
+        }
+    }
+    ]);
+
+    tray.setToolTip('OnePunch')
+    tray.setContextMenu(contextMenu)
+
+    tray.on('click', function () {
+        mainWindow.show();
+    });
+    if (returnedSettings.showUpdateSummary) {
+        createUpdateSummaryWindow();
+    }
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -366,63 +413,13 @@ app.on('ready', async () => {
     // set up the timeout loop for notifcations
     // launch the splash screen and main window
     // check for updates
-
     const returnedSettings = await settings.get();
-    // const altNotifications = returnedSettings.altNotifications || false;
-    const altNotifications = false;
-    if (returnedSettings.initialized) {
-        if (returnedSettings.reminders == "notifications" || returnedSettings.reminders == "popups") {
-            loopReminders(returnedSettings);
-        }
-        createSplashScreen();
-        // createMainWindow()
-        // autoUpdater.checkForUpdates();
-
-        tray = new Tray(iconpath)
-        const contextMenu = Menu.buildFromTemplate([{
-            label: 'How are we doing today?',
-            click: function () {
-                // This allows for an alternate style of non native notifications
-                //it was briefly needed after a windows updated prevented native notifications
-                //It's being left in to guard against a similar problem in the future
-                let osRelease = os.release();
-                let osReleaseArray = osRelease.split(".");
-                let osReleaseNum = osReleaseArray[2];
-                if (/*osReleaseNum >= 16000 ||*/altNotifications) {
-                    createRemindersWindow();
-                } else {
-                    createNotificationReminder();
-                }
-            }
-        },
-        {
-            label: 'Open OnePunch',
-            click: function () {
-                mainWindow.show();
-            }
-        },
-        {
-            label: 'Quit',
-            click: function () {
-                app.isQuiting = true;
-                app.preventExit = false;
-                app.quit();
-
-            }
-        }
-        ]);
-
-        tray.setToolTip('OnePunch')
-        tray.setContextMenu(contextMenu)
-
-        tray.on('click', function () {
-            mainWindow.show();
-        });
-
-
-        if (returnedSettings.showUpdateSummary) {
-            createUpdateSummaryWindow();
-        }
+    await settings.set('altNotifications', false);
+    if (hasRequiredSettings(returnedSettings)) {
+        await startAppWithSettings(returnedSettings);
+        setTimeout(function () {
+            // autoUpdater.checkForUpdates();
+        }, 2000);
     } else {
         createSettingsWindow();
     }
@@ -455,12 +452,9 @@ autoUpdater.on('update-downloaded', () => {
         icon: iconpath,
         title: "OnePunch Updates"
     }, async () => {
-
-        const returnedSettings = await settings.set('showUpdateSummary', true)
+        await settings.set('showUpdateSummary', true)
         app.preventExit = false;
         setImmediate(() => autoUpdater.quitAndInstall(true, true));
-
-
     });
 });
 
@@ -477,10 +471,10 @@ function genReminders(returnedSettings) {
 function loopReminders(returnedSettings) {
     // the regular reminder interval is between 40 and 80 minutes
     // the commented interval between 10 and 20 seconds is left in for testing
-    // let reminderLagMinutes = Math.floor(Math.random() * (80 - 40 + 1) + 40);
-    // let reminderLagMs = 1000 * 60 * reminderLagMinutes;
-    let reminderLagMinutes = Math.floor(Math.random() * (20 - 10 + 1) + 10);
-    let reminderLagMs = 1000 * reminderLagMinutes;
+    let reminderLagMinutes = Math.floor(Math.random() * (80 - 40 + 1) + 40);
+    let reminderLagMs = 1000 * 60 * reminderLagMinutes;
+    // let reminderLagMinutes = Math.floor(Math.random() * (20 - 10 + 1) + 10);
+    // let reminderLagMs = 1000 * reminderLagMinutes;
     remindersTimeout = setTimeout(function () {
         genReminders(returnedSettings);
         loopReminders(returnedSettings);
@@ -489,29 +483,28 @@ function loopReminders(returnedSettings) {
 
 // notification reminders are managed from the main process
 const createNotificationReminder = async () => {
+    const returnedSettings = await settings.get();
+    let localPunches = 0;
+    if (returnedSettings.localLogs) {
+        localPunches = returnedSettings.localLogs.length;
+    }
+    const dailyPunchCountObj = {
+        punchCount: localPunches,
+        sharedPunches: false,
+        assumeDisconnected: returnedSettings.assumeDisconnected,
+        selectedIcon: returnedSettings.selectedIcon
+    }
     try {
-        const returnedSettings = await settings.get();
         const response = await axios.get(returnedSettings.logPath);
         await settings.set('disconnected', false)
+        dailyPunchCountObj.sharedPunches = true;
         const sharedPunchCount = response.data.length;
-        let localPunches = 0;
-        let sharedPunches = true;
-        if (returnedSettings.localLogs) {
-            localPunches = returnedSettings.localLogs.length;
-        }
-        if (!sharedPunchCount && sharedPunchCount !== 0) {
-            sharedPunches = false;
-        }
-        const dailyPunchCountObj = {
-            punchCount: localPunches + sharedPunchCount,
-            sharedPunches: sharedPunches
-        };
-        dailyPunchCountObj.assumeDisconnected = returnedSettings.assumeDisconnected;
-        dailyPunchCountObj.selectedIcon = returnedSettings.selectedIcon;
+        dailyPunchCountObj.punchCount += sharedPunchCount;
         mainWindow.webContents.send('reminderNotify', dailyPunchCountObj);
     } catch (err) {
-        await settings.set('disconnected', true)
         console.log(err)
+        await settings.set('disconnected', true)
+        mainWindow.webContents.send('reminderNotify', dailyPunchCountObj);
     }
 }
 
@@ -519,16 +512,11 @@ const createNotificationReminder = async () => {
 ipcMain.on('settingsComplete', async (event, arg) => {
 
     const returnedSettings = await settings.get();
-    if (returnedSettings.initialized) {
-        if (returnedSettings.reminders == "notifications" || returnedSettings.reminders == "popups") {
-            loopReminders(returnedSettings);
-        }
-        createSplashScreen();
-        settingsWindow.close();
-        // autoUpdater.checkForUpdates();
-        if (returnedSettings.showUpdateSummary) {
-            createUpdateSummaryWindow();
-        }
+    if (hasRequiredSettings(returnedSettings)) {
+        await startAppWithSettings(returnedSettings, settingsWindow);
+        setTimeout(function () {
+            // autoUpdater.checkForUpdates();
+        }, 2000);
     } else {
         createSettingsWindow();
     }
@@ -567,6 +555,13 @@ ipcMain.on('showOwlWindow', function (event) {
 
 ipcMain.on('showAboutWindow', function (event) {
     createAboutWindow();
+});
+
+ipcMain.on('openUrlInBrowser', function (event, url) {
+    const validUrls = ["https://www.flaticon.com/authors/becris", "https://www.flaticon.com/authors/dimitry-miroliubov", "http://www.freepik.com", "https://www.flaticon.com/authors/gregor-cresnar", "https://www.flaticon.com/authors/pixel-buddha", "https://www.flaticon.com/authors/roundicons", "https://www.flaticon.com/authors/vectors-market", "https://www.flaticon.com/", "http://creativecommons.org/licenses/by/3.0/", "https://github.com/American-University-Library/OnePunch"];
+    if (validUrls.includes(url)) {
+        shell.openExternal(url);
+    }
 });
 
 // after a new owl is picked message comes here to close the window
@@ -647,6 +642,30 @@ var showToaster = function (msg) {
     });
 };
 
+/* {
+    "logPath": "http://localhost:3030/?key=key",
+    "hotKey": "F9",
+    "reminders": "popups",
+    "assumeDisconnected": false
+} */
+
+const hasRequiredSettings = returnedSettings => {
+    const { logPath, hotKey, reminders, assumeDisconnected } = returnedSettings;
+    let valid = true;
+    if (!(logPath && typeof logPath === 'string' && logPath.length > 0)) {
+        valid = false;
+    }
+    if (!(hotKey && typeof hotKey === 'string' && hotKey.length > 0)) {
+        valid = false;
+    }
+    if (!(reminders && typeof reminders === 'string' && reminders.length > 0)) {
+        valid = false;
+    }
+    if (!(assumeDisconnected === true || assumeDisconnected === false)) {
+        valid = false;
+    }
+    return valid;
+}
 
 // set to allow notifications
 // app.setAppUserModelId("com.app.onepunch")

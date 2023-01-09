@@ -11,7 +11,7 @@ module.exports = {
             const assumeDisconnected = returnedSettings.assumeDisconnected;
             const selectedIcon = returnedSettings.selectedIcon || "owl_ico";
             const selectedIconName = selectedIcon + "_64.png";
-            const altNotifications = false;
+            const altNotifications = returnedSettings.altNotifications;
             try {
                 const response = await window.preload.postLog();
                 if (!response) {

@@ -1,11 +1,12 @@
 const LogText = window.preload.LogText;
-const MoveLocalText = window.preload.MoveLocalText;
+const MoveLocalText = window.preload.moveLocalText;
 const Reports = window.preload.Reports;
-const FileDialog = window.preload.FileDialog;
+const FileDialog = window.preload.fileDialog;
 const WindowsNotifications = window.preload.WindowsNotifications;
 
 const iconpath = window.preload.getIconPath();
 const warnIconPath = window.preload.getWarnIconPath();
+
 window.preload.receive("newOwl", owlIcon => {
   let icon128Path = "../images/" + owlIcon + "_128.png";
   document.getElementById("mainOwlIconImage").src = icon128Path;
@@ -58,19 +59,19 @@ const tabSettings = {
     style: [{
       name: "overflowY",
       value: "scroll",
-    }, ],
+    },],
   },
   homeTab: {
     style: [{
       name: "overflowY",
       value: "hidden",
-    }, ],
+    },],
   },
   reportsTab: {
     style: [{
       name: "overflowY",
       value: "hidden",
-    }, ],
+    },],
   },
 };
 
@@ -105,10 +106,8 @@ if (monitorScreenHeight < 925) {
     document.body.style.overflowY = "scroll";
 }*/
 
-
-// load all settings, fill out the settings tab with those values, set the hotkey, and move any local logs
-window.preload.getSettings().then(async function (returnedSettings) {
-
+const loadSettings = async () => {
+  const returnedSettings = await window.preload.getSettings();
   // load all the settings
   let hotKey = returnedSettings.hotKey || "F9";
   let reminders = returnedSettings.reminders || false;
@@ -135,7 +134,7 @@ window.preload.getSettings().then(async function (returnedSettings) {
   document.getElementById("assumeDisconnectedCheck").checked =
     assumeDisconnected;
   document.getElementById("currentHotKey").value = hotKey;
-  document.getElementById("altNotifications").checked = altNotifications;
+  // document.getElementById("altNotifications").checked = altNotifications;
   const logPath = returnedSettings.logPath;
   const logSplit = logPath.split("?key=");
   document.getElementById('urlPicker').value = logSplit[0];
@@ -143,8 +142,9 @@ window.preload.getSettings().then(async function (returnedSettings) {
 
   // set the hotkey
   window.preload.registerHotKey(hotKey, window);
+}
 
-  // move any local logs
+const moveLocalLogs = async notifyIfZero => {
   try {
     const logsMovedObj = await MoveLocalText();
     let logsMoved = logsMovedObj.logsMoved;
@@ -162,15 +162,17 @@ window.preload.getSettings().then(async function (returnedSettings) {
         window
       );
     } else {
-      let notifyMessage = "No local logs to move";
-      WindowsNotifications(
-        "Update!",
-        notifyMessage,
-        selectedIconName,
-        3500,
-        altNotifications,
-        window
-      );
+      if (notifyIfZero) {
+        let notifyMessage = "No local logs to move";
+        WindowsNotifications(
+          "Update!",
+          notifyMessage,
+          selectedIconName,
+          3500,
+          altNotifications,
+          window
+        );
+      }
     }
   } catch (err) {
     console.log(err)
@@ -183,7 +185,11 @@ window.preload.getSettings().then(async function (returnedSettings) {
       window
     );
   }
-});
+}
+
+// load all settings, fill out the settings tab with those values, set the hotkey, and move any local logs
+loadSettings();
+moveLocalLogs(false);
 
 document.getElementById("logBtn").addEventListener("click", function () {
   LogText(window, "add event listener");
@@ -196,44 +202,7 @@ document
   });
 
 document.getElementById("moveLocalBtn").addEventListener("click", async () => {
-  try {
-    const logsMovedObj = await MoveLocalText();
-    let logsMoved = logsMovedObj.logsMoved;
-    let selectedIcon = logsMovedObj.selectedIcon;
-    let selectedIconName = selectedIcon + "_64.png";
-    if (logsMoved > 0) {
-      let notifyMessage =
-        "Moved " + logsMoved + " logs from local storage to network";
-      WindowsNotifications(
-        "Update!",
-        notifyMessage,
-        selectedIconName,
-        3500,
-        altNotifications,
-        window
-      );
-    } else {
-      let notifyMessage = "No local logs to move";
-      WindowsNotifications(
-        "Update!",
-        notifyMessage,
-        selectedIconName,
-        3500,
-        altNotifications,
-        window
-      );
-    }
-  } catch (err) {
-    console.log(err)
-    WindowsNotifications(
-      "Cannot connect!",
-      "Logs will save locally until connected to network",
-      "exclamation_mark_64.png",
-      3500,
-      altNotifications,
-      window
-    );
-  }
+  await moveLocalLogs(true);
 });
 
 
@@ -251,44 +220,54 @@ document
     let startDate = document.getElementById("startDate").value;
     let endDate = document.getElementById("endDate").value;
     let savePath = document.getElementById("savePath").value;
-    if (startDate != "" && endDate != "" && savePath != "") {
-      const reportingComplete = await Reports(
-        startDate,
-        endDate,
-        myDeskOnly,
-        timeDetail,
-        savePath,
-        window
-      );
-      if (reportingComplete) {
-        window.preload.showMessageBox({
-          message: "Report saved!",
-          buttons: ["OK"],
-          type: "info",
-          icon: iconpath,
-          title: "Saved",
-        });
+    try {
+      if (startDate != "" && endDate != "" && savePath != "") {
+        const reportingComplete = await Reports(
+          startDate,
+          endDate,
+          myDeskOnly,
+          timeDetail,
+          savePath,
+          window
+        );
+        if (reportingComplete) {
+          window.preload.showMessageBox({
+            message: "Report saved!",
+            buttons: ["OK"],
+            type: "info",
+            icon: iconpath,
+            title: "Saved",
+          });
+        } else {
+          window.preload.showMessageBox({
+            message: "There was an error generating your report",
+            buttons: ["OK"],
+            type: "info",
+            icon: warnIconPath,
+            title: "Error",
+          });
+        }
       } else {
         window.preload.showMessageBox({
-          message: "There was an error generating your report",
+          message: "Please choose report parameters",
           buttons: ["OK"],
           type: "info",
           icon: warnIconPath,
-          title: "Error",
+          title: "Alert",
         });
       }
-    } else {
+    } catch (err) {
       window.preload.showMessageBox({
-        message: "Please choose report parameters",
+        message: "There was an error generating your report",
         buttons: ["OK"],
         type: "info",
         icon: warnIconPath,
-        title: "Alert",
+        title: "Error",
       });
     }
   });
 
-var startPicker = new Pikaday({
+const startPicker = new Pikaday({
   field: document.getElementById("startDate"),
   format: "M/D/YYYY",
   toString(date, format) {
@@ -309,7 +288,7 @@ var startPicker = new Pikaday({
   },
 });
 
-var endPicker = new Pikaday({
+const endPicker = new Pikaday({
   field: document.getElementById("endDate"),
   format: "M/D/YYYY",
   toString(date, format) {
@@ -356,7 +335,8 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
       let assumeDisconnected = document.getElementById(
         "assumeDisconnectedCheck"
       ).checked;
-      let altNotifications = document.getElementById("altNotifications").checked;
+      // let altNotifications = document.getElementById("altNotifications").checked;
+      let altNotifications = false;
       await window.preload.setSetting("hotKey", hotKeyChoice);
       await window.preload.setSetting("reminders", remindersChoice);
       await window.preload.setSetting("reminders", remindersChoice);

@@ -4,11 +4,6 @@
 // the fix ended up being to explicitly declare the appId in the main.js file
 // I've left open the potential for falling back on the secondary notifications if needed in the future
 
-/* const os = require('os');
-const osRelease = os.release();
-const osReleaseArray = osRelease.split(".");
-const osReleaseNum = osReleaseArray[2]; */
-
 module.exports = {
 
     notify: function (notificationTitle, notificationText, icon, hangTime, altNotifications,window) {
@@ -16,7 +11,7 @@ module.exports = {
         //altNotifications = true;
         const iconPath = '../images/' + icon;
         if (altNotifications) {
-            var msg = {
+            const msg = {
                 title: notificationTitle,
                 message: notificationText,
                 width: 440,
@@ -36,9 +31,8 @@ module.exports = {
                     notification.close();
                 }, hangTime);
             }
-
             notification.onerror = err => {
-                console.log('error', err)
+                console.log(err)
             }
         }
     }
