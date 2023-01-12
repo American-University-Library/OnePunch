@@ -23,7 +23,8 @@ module.exports = {
         } else {
             const options = {
                 icon: iconPath,
-                body: notificationText
+                body: notificationText,
+                silent: true
             };
             const notification = new Notification(notificationTitle, options);
             notification.onshow = function () {
