@@ -11,13 +11,15 @@ const {
 } = require('electron');
 
 const settings = require('electron-settings');
-const axios = require('axios');
 
 const url = require('url');
 const path = require('path');
 const {
     autoUpdater
 } = require("electron-updater");
+const {
+    fetchApi
+} = require("./scripts/fetchApi");
 app.preventExit = true;
 
 /* const appFolder = path.dirname(process.execPath) */
@@ -366,30 +368,30 @@ const startAppWithSettings = async (returnedSettings, settingsWindow) => {
 
     tray = new Tray(iconpath)
     const contextMenu = Menu.buildFromTemplate([{
-        label: 'How are we doing today?',
-        click: function () {
-            if (returnedSettings.altNotifications) {
-                createRemindersWindow();
-            } else {
-                createNotificationReminder();
+            label: 'How are we doing today?',
+            click: function () {
+                if (returnedSettings.altNotifications) {
+                    createRemindersWindow();
+                } else {
+                    createNotificationReminder();
+                }
+            }
+        },
+        {
+            label: 'Open OnePunch',
+            click: function () {
+                mainWindow.show();
+            }
+        },
+        {
+            label: 'Quit',
+            click: function () {
+                app.isQuiting = true;
+                app.preventExit = false;
+                app.quit();
+
             }
         }
-    },
-    {
-        label: 'Open OnePunch',
-        click: function () {
-            mainWindow.show();
-        }
-    },
-    {
-        label: 'Quit',
-        click: function () {
-            app.isQuiting = true;
-            app.preventExit = false;
-            app.quit();
-
-        }
-    }
     ]);
 
     tray.setToolTip('OnePunch')
@@ -495,15 +497,13 @@ const createNotificationReminder = async () => {
         selectedIcon: returnedSettings.selectedIcon
     }
     try {
-        const response = await axios.get(returnedSettings.logPath);
-        await settings.set('disconnected', false)
+        const response = await fetchApi();
         dailyPunchCountObj.sharedPunches = true;
         const sharedPunchCount = response.data.length;
         dailyPunchCountObj.punchCount += sharedPunchCount;
         mainWindow.webContents.send('reminderNotify', dailyPunchCountObj);
     } catch (err) {
         console.log(err)
-        await settings.set('disconnected', true)
         mainWindow.webContents.send('reminderNotify', dailyPunchCountObj);
     }
 }
@@ -602,12 +602,12 @@ var showToaster = function (msg) {
             clearTimeout(timer);
             clearTimeout(closeTimer)
             self.window = null;
-        } catch (e) { }
+        } catch (e) {}
     });
     var moveWindow = function (pos, done) {
         try {
             self.window.setPosition(display.workAreaSize.width - width - 4, pos);
-        } catch (e) { } finally {
+        } catch (e) {} finally {
             done();
         }
     };
@@ -637,7 +637,7 @@ var showToaster = function (msg) {
         if (self.window) {
             width = self.window.getSize()[0];
             height = self.window.getSize()[1];
-            slideUp(function () { });
+            slideUp(function () {});
         }
     });
 };
@@ -650,7 +650,12 @@ var showToaster = function (msg) {
 } */
 
 const hasRequiredSettings = returnedSettings => {
-    const { logPath, hotKey, reminders, assumeDisconnected } = returnedSettings;
+    const {
+        logPath,
+        hotKey,
+        reminders,
+        assumeDisconnected
+    } = returnedSettings;
     let valid = true;
     if (!(logPath && typeof logPath === 'string' && logPath.length > 0)) {
         valid = false;
