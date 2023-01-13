@@ -15,7 +15,7 @@
     "type": "git",
     "url": "git+https://github.com/American-University-Library/OnePunch"
   },
-  "author": "aspau",
+  "author": "Liam Toohey",
   "license": "MIT",
   "dependencies": {
     "axios": "^1.2.2",
