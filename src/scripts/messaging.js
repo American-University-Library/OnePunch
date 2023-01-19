@@ -15,5 +15,6 @@ module.exports = {
     showMessageBox: () => {},
     getSettings: () => {},
     setSetting: () => {},
-    postLog: () => {}
+    postLog: () => {},
+    logError: () => {}
 }

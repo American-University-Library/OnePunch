@@ -20,7 +20,7 @@ module.exports = {
                 WindowsNotifications.notify("Logged!", "Logged to network", selectedIconName, 2000, altNotifications, window)
                 resolve(true);
             } catch (err) {
-                console.log(err)
+                window.preload.logError(err);
                 await saveLocalLog(returnedSettings, window);
                 if (assumeDisconnected) {
                     WindowsNotifications.notify(
@@ -61,7 +61,7 @@ const saveLocalLog = async (returnedSettings, window) => {
             await window.preload.setSetting('disconnected', true);
             resolve(true);
         } catch(err) {
-            console.log(err)
+            window.preload.logError(err)
             reject(false)
         }
     })

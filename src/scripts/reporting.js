@@ -82,7 +82,7 @@ module.exports = {
         },
             function (err) {
                 if (err) {
-                    console.log(err)
+                    window.preload.logError(err);
                     resolve(false);
                 } else {
                     resolve(true);

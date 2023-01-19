@@ -11,7 +11,7 @@ const highlightCurrentOwl = async () => {
             }
         }
     } catch (err) {
-        console.log(err)
+        window.preload.logError(err);
     }
 }
 

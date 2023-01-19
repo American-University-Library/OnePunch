@@ -1,4 +1,5 @@
 //"use strict";
+// NOTE: File name must be changed prior to upload to github release
 const electron = require("electron");
 // Module to control application life.
 const app = electron.app;
@@ -22,6 +23,9 @@ const {
 } = require("./scripts/fetchApi");
 app.preventExit = true;
 
+const log = require('electron-log');
+log.transports.file.level = 'error';
+
 /* const appFolder = path.dirname(process.execPath) */
 const exeName = path.basename(process.execPath)
 
@@ -40,6 +44,12 @@ const BrowserWindow = electron.BrowserWindow;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
+
+/* log.errorHandler.startCatching(); */
+
+autoUpdater.logger = log
+autoUpdater.logger["transports"].file.level = "info"
+
 let mainWindow;
 let remindersWindow = null;
 let tray = null;
@@ -358,6 +368,8 @@ function createMainWindow() {
 }
 
 const startAppWithSettings = async (returnedSettings, settingsWindow) => {
+
+
     if (returnedSettings.reminders == "notifications" || returnedSettings.reminders == "popups") {
         loopReminders(returnedSettings);
     }
@@ -368,30 +380,30 @@ const startAppWithSettings = async (returnedSettings, settingsWindow) => {
 
     tray = new Tray(iconpath)
     const contextMenu = Menu.buildFromTemplate([{
-            label: 'How are we doing today?',
-            click: function () {
-                if (returnedSettings.altNotifications) {
-                    createRemindersWindow();
-                } else {
-                    createNotificationReminder();
-                }
-            }
-        },
-        {
-            label: 'Open OnePunch',
-            click: function () {
-                mainWindow.show();
-            }
-        },
-        {
-            label: 'Quit',
-            click: function () {
-                app.isQuiting = true;
-                app.preventExit = false;
-                app.quit();
-
+        label: 'How are we doing today?',
+        click: function () {
+            if (returnedSettings.altNotifications) {
+                createRemindersWindow();
+            } else {
+                createNotificationReminder();
             }
         }
+    },
+    {
+        label: 'Open OnePunch',
+        click: function () {
+            mainWindow.show();
+        }
+    },
+    {
+        label: 'Quit',
+        click: function () {
+            app.isQuiting = true;
+            app.preventExit = false;
+            app.quit();
+
+        }
+    }
     ]);
 
     tray.setToolTip('OnePunch')
@@ -420,8 +432,8 @@ app.on('ready', async () => {
     if (hasRequiredSettings(returnedSettings)) {
         await startAppWithSettings(returnedSettings);
         setTimeout(function () {
-            // autoUpdater.checkForUpdates();
-        }, 2000);
+            autoUpdater.checkForUpdates();
+        }, 2500);
     } else {
         createSettingsWindow();
     }
@@ -446,18 +458,23 @@ app.on('activate', function () {
 
 // when updates are downloaded they force an automatic restart at launch
 
-autoUpdater.on('update-downloaded', () => {
-    dialog.showMessageBox({
-        message: "Updates downloaded, OnePunch will now restart",
-        buttons: ["OK"],
-        type: "info",
-        icon: iconpath,
-        title: "OnePunch Updates"
-    }, async () => {
-        await settings.set('showUpdateSummary', true)
-        app.preventExit = false;
-        setImmediate(() => autoUpdater.quitAndInstall(true, true));
-    });
+autoUpdater.on('update-downloaded', async () => {
+    try {
+        const { response } = await dialog.showMessageBox({
+            message: "Updates downloaded, OnePunch will now restart",
+            buttons: ["OK", "Cancel"],
+            type: "info",
+            icon: iconpath,
+            title: "OnePunch Updates"
+        });
+        if (response === 0) {
+            await settings.set('showUpdateSummary', true)
+            app.preventExit = false;
+            setImmediate(() => autoUpdater.quitAndInstall(true, true));
+        }
+    } catch (err) {
+        log.error(err);
+    }
 });
 
 
@@ -503,7 +520,7 @@ const createNotificationReminder = async () => {
         dailyPunchCountObj.punchCount += sharedPunchCount;
         mainWindow.webContents.send('reminderNotify', dailyPunchCountObj);
     } catch (err) {
-        console.log(err)
+        log.error(err);
         mainWindow.webContents.send('reminderNotify', dailyPunchCountObj);
     }
 }
@@ -515,8 +532,8 @@ ipcMain.on('settingsComplete', async (event, arg) => {
     if (hasRequiredSettings(returnedSettings)) {
         await startAppWithSettings(returnedSettings, settingsWindow);
         setTimeout(function () {
-            // autoUpdater.checkForUpdates();
-        }, 2000);
+            autoUpdater.checkForUpdates();
+        }, 2500);
     } else {
         createSettingsWindow();
     }
@@ -602,12 +619,12 @@ var showToaster = function (msg) {
             clearTimeout(timer);
             clearTimeout(closeTimer)
             self.window = null;
-        } catch (e) {}
+        } catch (e) { }
     });
     var moveWindow = function (pos, done) {
         try {
             self.window.setPosition(display.workAreaSize.width - width - 4, pos);
-        } catch (e) {} finally {
+        } catch (e) { } finally {
             done();
         }
     };
@@ -637,7 +654,7 @@ var showToaster = function (msg) {
         if (self.window) {
             width = self.window.getSize()[0];
             height = self.window.getSize()[1];
-            slideUp(function () {});
+            slideUp(function () { });
         }
     });
 };

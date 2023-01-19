@@ -38,7 +38,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
       });
     }
   } catch (err) {
-    console.log(err);
+    window.preload.logError(err);
   }
 });
 

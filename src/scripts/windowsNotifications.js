@@ -33,7 +33,7 @@ module.exports = {
                 }, hangTime);
             }
             notification.onerror = err => {
-                console.log(err)
+                window.preload.logError(err);
             }
         }
     }

@@ -175,7 +175,7 @@ const moveLocalLogs = async notifyIfZero => {
       }
     }
   } catch (err) {
-    console.log(err)
+    window.preload.logError(err);
     WindowsNotifications(
       "Cannot connect!",
       "Logs will save locally until connected to network",
@@ -369,7 +369,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
       });
     }
   } catch (err) {
-    console.log(err)
+    window.preload.logError(err);
   }
 });
 

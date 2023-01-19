@@ -22,6 +22,8 @@ const {
     fetchApi
 } = require('./fetchApi');
 
+const logger = require('electron-log');
+
 const setHotKey = (hotKey, window) => {
     globalShortcut.register(hotKey, () => {
         LogText.logText(window, 'from hot key');
@@ -52,7 +54,7 @@ contextBridge.exposeInMainWorld(
                     await electronSettings.set('localLogs', [])
                     resolve(logsMovedObj);
                 } catch (err) {
-                    console.log(err)
+                    logger.error(err)
                     reject(false)
                 }
 
@@ -85,7 +87,7 @@ contextBridge.exposeInMainWorld(
                 const reportingComplete = await Reports.writeReportToCsv(reportText, savePath);
                 return reportingComplete;
             } catch (err) {
-                console.log(err);
+                logger.error(err)
                 if (error === "connection error") {
                     WindowsNotifications.notify("Cannot connect!", "Please connect to network", "exclamation_mark_64.png", 3500, returnedSettings.altNotifications, window);
                 }
@@ -122,7 +124,7 @@ contextBridge.exposeInMainWorld(
                         sharedPunches: sharedPunches
                     });
                 } catch (err) {
-                    console.log(err)
+                    logger.error(err)
                     reject(localPunches);
                 }
             });
@@ -193,6 +195,9 @@ contextBridge.exposeInMainWorld(
             if (validChannels.includes(channel)) {
                 ipcRenderer.on(channel, (event, ...args) => func(...args));
             }
+        },
+        logError: (err) => {
+            logger.error(err);
         }
 
     }
@@ -219,7 +224,7 @@ const postLog = async (forcePost, log) => {
         const response = await fetchApi(request);
         return response;
     } catch (err) {
-        console.log(err);
+        logger.error(err)
         return false;
     }
 }
