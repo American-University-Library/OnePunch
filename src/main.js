@@ -461,8 +461,8 @@ app.on('activate', function () {
 autoUpdater.on('update-downloaded', async () => {
     try {
         const { response } = await dialog.showMessageBox({
-            message: "Updates downloaded, OnePunch will now restart",
-            buttons: ["OK", "Cancel"],
+            message: "Updates downloaded. Install and restart?",
+            buttons: ["Yes", "Cancel"],
             type: "info",
             icon: iconpath,
             title: "OnePunch Updates"

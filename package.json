@@ -1,7 +1,7 @@
 {
   "name": "onepunch",
   "productName": "OnePunch",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "A logger for patron interactions",
   "main": "src/main.js",
   "scripts": {

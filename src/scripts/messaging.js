@@ -16,5 +16,6 @@ module.exports = {
     getSettings: () => {},
     setSetting: () => {},
     postLog: () => {},
-    logError: () => {}
+    logError: () => {},
+    reconnect: () => {}
 }

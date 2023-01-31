@@ -198,6 +198,34 @@ contextBridge.exposeInMainWorld(
         },
         logError: (err) => {
             logger.error(err);
+        },
+        reconnect: async () => {
+            const warnIconPath = path.join(__dirname, '/images/exclamation_mark_64.png');
+            const iconpath = path.join(__dirname, '/images/owl_ico_16.png');
+            try {
+                const request = {
+                    method: 'head'
+                }
+                const response = await fetchApi(request);
+                dialog.showMessageBox({
+                    message: "Connected to Network!",
+                    buttons: ["OK"],
+                    type: "info",
+                    icon: iconpath,
+                    title: "Connected",
+                  })
+                return response;
+            } catch (err) {
+                logger.error(err)
+                dialog.showMessageBox({
+                    message: "Unable to connect to network",
+                    buttons: ["OK"],
+                    type: "info",
+                    icon: warnIconPath,
+                    title: "Error",
+                  })
+                return false;
+            }
         }
 
     }

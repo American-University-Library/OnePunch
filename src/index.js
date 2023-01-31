@@ -205,6 +205,10 @@ document.getElementById("moveLocalBtn").addEventListener("click", async () => {
   await moveLocalLogs(true);
 });
 
+document.getElementById("reconnectBtn").addEventListener("click", async () => {
+  await window.preload.reconnect();
+});
+
 
 document
   .getElementById("generateReportBtn")
