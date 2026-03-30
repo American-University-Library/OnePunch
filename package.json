@@ -1,7 +1,7 @@
 {
   "name": "onepunch",
   "productName": "OnePunch",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "description": "A logger for patron interactions",
   "main": "src/main.js",
   "scripts": {
@@ -18,10 +18,10 @@
   "author": "Liam Toohey",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.2.2",
-    "electron-log": "^5.0.0-beta.15",
-    "electron-settings": "^4.0.2",
-    "electron-updater": "^4.6.5"
+    "axios": "^1.14.0",
+    "electron-log": "^5.4.3",
+    "electron-settings": "^4.0.4",
+    "electron-updater": "^6.8.3"
   },
   "build": {
     "appId": "com.app.onepunch",
@@ -42,7 +42,7 @@
     }
   },
   "devDependencies": {
-    "electron": "^13.6.9",
-    "electron-builder": "^22.14.13"
+    "electron": "^41.1.0",
+    "electron-builder": "^26.8.1"
   }
 }

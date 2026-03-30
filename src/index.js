@@ -16,40 +16,16 @@ window.preload.receive("reminderNotify", (dailyPunchCountObj) => {
   let dailyPunchCount = dailyPunchCountObj.punchCount;
   let selectedIcon = dailyPunchCountObj.selectedIcon || "owl_ico";
   let selectedIconName = selectedIcon + "_64.png";
-  if (dailyPunchCountObj.sharedPunches !== false) {
-    let notificationTitle =
-      "You've helped " + dailyPunchCount + " people today!";
-    WindowsNotifications(
-      notificationTitle,
-      "Keep on punching!",
-      selectedIconName,
-      2000,
-      altNotifications,
-      window
-    );
-  } else {
-    if (dailyPunchCountObj.assumeDisconnected) {
-      let notificationTitle =
-        "You've helped " + dailyPunchCount + " people today!";
-      WindowsNotifications(
-        notificationTitle,
-        "Keep on punching!",
-        selectedIconName,
-        2000,
-        altNotifications,
-        window
-      );
-    } else {
-      WindowsNotifications(
-        "Cannot connect!",
-        "Please connect to network",
-        "exclamation_mark_64.png",
-        3500,
-        altNotifications,
-        window
-      );
-    }
-  }
+  let notificationTitle = "You've helped " + dailyPunchCount + " people today!";
+  WindowsNotifications(notificationTitle, "Keep on punching!", selectedIconName, 2000);
+});
+
+window.preload.receive("reconnected", () => {
+  moveLocalLogs(false);
+});
+
+window.preload.receive("hotKeyPressed", () => {
+  LogText("from hot key");
 });
 
 // add tab elements, hide all but home tab
@@ -95,53 +71,32 @@ document.querySelectorAll(".tabControl").forEach(function (tabCtrl) {
   });
 });
 
-const appVersion = window.preload.getVersion();
-document.getElementById("appVersion").textContent = "v " + appVersion;
+window.preload.getVersion().then(v => {
+  document.getElementById("appVersion").textContent = "v " + v;
+});
 
-//const monitorScreen = screen.getPrimaryDisplay();
-
-// add vertical scroll bars for small screens
-/*const monitorScreenHeight = monitorScreen.workAreaSize.height;
-if (monitorScreenHeight < 925) {
-    document.body.style.overflowY = "scroll";
-}*/
 
 const loadSettings = async () => {
   const returnedSettings = await window.preload.getSettings();
-  // load all the settings
   let hotKey = returnedSettings.hotKey || "F9";
   let reminders = returnedSettings.reminders || false;
-  let assumeDisconnected = returnedSettings.assumeDisconnected || false;
-  altNotifications = returnedSettings.altNotifications || false;
   let selectedIcon = returnedSettings.selectedIcon || "owl_ico";
   let icon128Path = "../images/" + selectedIcon + "_128.png";
-  // fill out the settings tab with those settings
   document.getElementById("mainOwlIconImage").src = icon128Path;
-  document
-    .querySelectorAll('input[name="hotKey"]')
-    .forEach(function (radioBtn) {
-      if (radioBtn.value === hotKey) {
-        radioBtn.checked = true;
-      }
-    });
-  document
-    .querySelectorAll('input[name="reminders"]')
-    .forEach(function (radioBtn) {
-      if (radioBtn.value === reminders) {
-        radioBtn.checked = true;
-      }
-    });
-  document.getElementById("assumeDisconnectedCheck").checked =
-    assumeDisconnected;
+  document.querySelectorAll('input[name="hotKey"]').forEach(function (radioBtn) {
+    if (radioBtn.value === hotKey) {
+      radioBtn.checked = true;
+    }
+  });
+  document.querySelectorAll('input[name="reminders"]').forEach(function (radioBtn) {
+    if (radioBtn.value === reminders) {
+      radioBtn.checked = true;
+    }
+  });
   document.getElementById("currentHotKey").value = hotKey;
-  // document.getElementById("altNotifications").checked = altNotifications;
-  const logPath = returnedSettings.logPath;
-  const logSplit = logPath.split("?key=");
-  document.getElementById('urlPicker').value = logSplit[0];
-  document.getElementById('keyPicker').value = logSplit[1];
-
-  // set the hotkey
-  window.preload.registerHotKey(hotKey, window);
+  document.getElementById('urlPicker').value = returnedSettings.serverUrl || '';
+  document.getElementById('keyPicker').value = returnedSettings.apiKey || '';
+  window.preload.registerHotKey(hotKey);
 }
 
 const moveLocalLogs = async notifyIfZero => {
@@ -153,37 +108,16 @@ const moveLocalLogs = async notifyIfZero => {
     if (logsMoved > 0) {
       let notifyMessage =
         "Moved " + logsMoved + " logs from local storage to network";
-      WindowsNotifications(
-        "Update!",
-        notifyMessage,
-        selectedIconName,
-        3500,
-        altNotifications,
-        window
-      );
+      WindowsNotifications("Update!", notifyMessage, selectedIconName, 3500);
     } else {
       if (notifyIfZero) {
         let notifyMessage = "No local logs to move";
-        WindowsNotifications(
-          "Update!",
-          notifyMessage,
-          selectedIconName,
-          3500,
-          altNotifications,
-          window
-        );
+        WindowsNotifications("Update!", notifyMessage, selectedIconName, 3500);
       }
     }
   } catch (err) {
     window.preload.logError(err);
-    WindowsNotifications(
-      "Cannot connect!",
-      "Logs will save locally until connected to network",
-      "exclamation_mark_64.png",
-      3500,
-      altNotifications,
-      window
-    );
+    WindowsNotifications("Cannot connect!", "Logs will save locally until connected to network", "exclamation_mark_64.png", 3500);
   }
 }
 
@@ -192,7 +126,7 @@ loadSettings();
 moveLocalLogs(false);
 
 document.getElementById("logBtn").addEventListener("click", function () {
-  LogText(window, "add event listener");
+  LogText("add event listener");
 });
 
 document
@@ -201,13 +135,6 @@ document
     window.preload.send("getCurrentCount");
   });
 
-document.getElementById("moveLocalBtn").addEventListener("click", async () => {
-  await moveLocalLogs(true);
-});
-
-document.getElementById("reconnectBtn").addEventListener("click", async () => {
-  await window.preload.reconnect();
-});
 
 
 document
@@ -231,8 +158,7 @@ document
           endDate,
           myDeskOnly,
           timeDetail,
-          savePath,
-          window
+          savePath
         );
         if (reportingComplete) {
           window.preload.showMessageBox({
@@ -271,47 +197,25 @@ document
     }
   });
 
-const startPicker = new Pikaday({
-  field: document.getElementById("startDate"),
+const pickerConfig = {
   format: "M/D/YYYY",
-  toString(date, format) {
-    // you should do formatting based on the passed format,
-    // but we will just return 'D/M/YYYY' for simplicity
-    let day = date.getDate();
-    let month = date.getMonth() + 1;
-    let year = date.getFullYear();
+  toString(date) {
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
     return `${month}-${day}-${year}`;
   },
-  parse(dateString, format) {
-    // dateString is the result of `toString` method
-    let parts = dateString.split("/");
-    let day = parseInt(parts[0], 10);
-    let month = parseInt(parts[1] - 1, 10);
-    let year = parseInt(parts[1], 10);
+  parse(dateString) {
+    const parts = dateString.split("/");
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1] - 1, 10);
+    const year = parseInt(parts[1], 10);
     return new Date(year, month, day);
   },
-});
+};
 
-const endPicker = new Pikaday({
-  field: document.getElementById("endDate"),
-  format: "M/D/YYYY",
-  toString(date, format) {
-    // you should do formatting based on the passed format,
-    // but we will just return 'D/M/YYYY' for simplicity
-    let day = date.getDate();
-    let month = date.getMonth() + 1;
-    let year = date.getFullYear();
-    return `${month}-${day}-${year}`;
-  },
-  parse(dateString, format) {
-    // dateString is the result of `toString` method
-    let parts = dateString.split("/");
-    let day = parseInt(parts[0], 10);
-    let month = parseInt(parts[1] - 1, 10);
-    let year = parseInt(parts[1], 10);
-    return new Date(year, month, day);
-  },
-});
+const startPicker = new Pikaday({ field: document.getElementById("startDate"), ...pickerConfig });
+const endPicker = new Pikaday({ field: document.getElementById("endDate"), ...pickerConfig });
 
 document.getElementById("savePicker").addEventListener("click", async () => {
   const chosenDir = await FileDialog();
@@ -323,39 +227,19 @@ document.getElementById("savePicker").addEventListener("click", async () => {
 document.getElementById("saveBtn").addEventListener("click", async () => {
   try {
     let currentHotKey = document.getElementById("currentHotKey").value;
-    let hotKeyChoice = document.querySelector(
-      'input[name="hotKey"]:checked'
-    ).value;
-    let remindersChoice = document.querySelector(
-      'input[name="reminders"]:checked'
-    ).value;
+    let hotKeyChoice = document.querySelector('input[name="hotKey"]:checked').value;
+    let remindersChoice = document.querySelector('input[name="reminders"]:checked').value;
     document.getElementById("currentHotKey").value = hotKeyChoice;
-    let urlEntry = document.getElementById("urlPicker").value;
-    let url = urlEntry.trim();
-    let keyEntry = document.getElementById("keyPicker").value;
-    let key = keyEntry.trim();
-    if (url != "" && key != "") {
-      const logPath = url + "?key=" + key;
-      let assumeDisconnected = document.getElementById(
-        "assumeDisconnectedCheck"
-      ).checked;
-      // let altNotifications = document.getElementById("altNotifications").checked;
-      let altNotifications = false;
+    let serverUrl = document.getElementById("urlPicker").value.trim();
+    let apiKey = document.getElementById("keyPicker").value.trim();
+    if (serverUrl !== "" && apiKey !== "") {
+      await window.preload.setSetting("serverUrl", serverUrl);
+      await window.preload.setSetting("apiKey", apiKey);
       await window.preload.setSetting("hotKey", hotKeyChoice);
       await window.preload.setSetting("reminders", remindersChoice);
-      await window.preload.setSetting("reminders", remindersChoice);
       window.preload.send("remindersChanged");
-      await window.preload.setSetting("logPath", logPath);
-      await window.preload.setSetting(
-        "assumeDisconnected",
-        assumeDisconnected
-      );
-      await window.preload.setSetting(
-        "altNotifications",
-        altNotifications
-      );
       window.preload.unregisterHotKey(currentHotKey);
-      window.preload.registerHotKey(hotKeyChoice, window);
+      window.preload.registerHotKey(hotKeyChoice);
       window.preload.showMessageBox({
         message: "Settings saved!",
         buttons: ["OK"],
@@ -385,4 +269,9 @@ document.getElementById("mainOwlIcon").addEventListener("click", function () {
 // ask the main process to open the about window
 document.getElementById("showAbout").addEventListener("click", function () {
   window.preload.send("showAboutWindow");
+});
+
+// when the OS detects network connectivity, immediately attempt reconnect
+window.addEventListener('online', () => {
+  window.preload.send('reconnectTrigger');
 });

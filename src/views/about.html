@@ -48,9 +48,10 @@
     </div>
 
     <script>
-        const appVersion = window.preload.getVersion();
+        window.preload.getVersion().then(v => {
+            document.getElementById('appVersion').textContent = 'v ' + v;
+        });
 
-        document.getElementById('appVersion').textContent = "v " + appVersion;
         document.getElementById("copyrightYear").textContent = "Copyright " + new Date().getFullYear();
 
         const electronVersion = window.preload.getElectronVersion();

@@ -21,8 +21,9 @@
         </div>
     </div>
     <script>
-        const appVersion = window.preload.getVersion();
-        document.getElementById('appVersion').textContent = 'v ' + appVersion;
+        window.preload.getVersion().then(v => {
+            document.getElementById('appVersion').textContent = 'v ' + v;
+        });
     </script>
 </body>
 </html>

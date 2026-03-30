@@ -1,3 +1,0 @@
-Still Needed
-Add spinner to reminders window
-Better error information for HTML calls

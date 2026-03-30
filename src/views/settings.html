@@ -14,7 +14,7 @@
             <h2>Just a couple of things to decide before we get going...</h2>
         </div>
         <div class="fourteen wide column">
-            <h2 class="tooltip">Data Storage URL<span class="tooltiptext">Use the full URL endpoint</span></h2>
+            <h2 class="tooltip">Server URL<span class="tooltiptext">Base URL for the server (e.g. https://example.com/api)</span></h2>
         </div>
         <div class="twelve wide column">
             <div class="ui input large">
@@ -30,15 +30,6 @@
                     placeholder="Enter api key" />
             </div>
         </div>
-        <!--       
-        Leave this to build in validation logic
-        <div class="twelve wide column cloud storage" style="">
-            <button id="validateBtn" class="ui primary button fluid">
-            Validate and Save
-            </button>
-        </div>
-        <input id="logPath" type="hidden" name="userSetting" value="" /> -->
-        
         <div class="fourteen wide column">
             <h2 class="tooltip">HotKey<span class="tooltiptext">Only one program is allowed to use a single hotkey at
                     once. Be careful not to choose a key that's already being used elsewhere.</span></h2>
@@ -77,14 +68,6 @@
                 <input type="radio" name="reminders" value="popups" id="popUpReminders" class="ui radio checkbox" checked>
                 <label for="ctrlAltF9">Pop-Ups</label>
             </div>
-        </div>
-        <div class="fourteen wide column">
-            <h2 class="tooltip">Connection Status<span class="tooltiptext">This setting reduces connection error
-                    warnings. Use it for desks that won't usually be connected to the network.</span></h2>
-        </div>
-        <div class="ui slider checkbox twelve wide column">
-            <input id="assumeDisconnectedCheck" type="checkbox" name="details">
-            <label>Assume No Connection</label>
         </div>
         <div class="twelve wide column" style="padding: 20px 0px 5px 0px;">
             <button id="saveBtn" class="fluid ui purple button">Save</button>

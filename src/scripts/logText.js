@@ -1,68 +1,26 @@
-const settings = require('electron-settings');
-const WindowsNotifications = require('./windowsNotifications')
+const { ipcRenderer } = require('electron');
+const WindowsNotifications = require('./windowsNotifications');
 
 module.exports = {
-
-    // called to actually log the text
-
-    logText: function (window, source) {
-        return new Promise(async (resolve, reject) => {
-            const returnedSettings = await settings.get();
-            const assumeDisconnected = returnedSettings.assumeDisconnected;
-            const selectedIcon = returnedSettings.selectedIcon || "owl_ico";
-            const selectedIconName = selectedIcon + "_64.png";
-            const altNotifications = returnedSettings.altNotifications;
-            try {
-                const response = await window.preload.postLog();
-                if (!response) {
-                    throw new Error('Network Unavailable')
-                }
-                WindowsNotifications.notify("Logged!", "Logged to network", selectedIconName, 2000, altNotifications, window)
-                resolve(true);
-            } catch (err) {
-                window.preload.logError(err);
-                await saveLocalLog(returnedSettings, window);
-                if (assumeDisconnected) {
-                    WindowsNotifications.notify(
-                        "Logged!",
-                        "Logged to local file!",
-                        selectedIconName,
-                        2000,
-                        altNotifications,
-                        window
-                    );
-                    resolve(true);
-                } else {
-                    WindowsNotifications.notify(
-                        "Logged locally!",
-                        "Please connect to network.",
-                        "exclamation_mark_64.png",
-                        3500,
-                        altNotifications,
-                        window
-                    );
-                    resolve(true);
-                }
-            }
-        });
-    }
-}
-
-const saveLocalLog = async (returnedSettings, window) => {
-    return new Promise(async (resolve, reject) => {
+    logText: async function (doPost, source) {
+        const returnedSettings = await ipcRenderer.invoke('settings:get');
+        const selectedIconName = (returnedSettings.selectedIcon || "owl_ico") + "_64.png";
         try {
-            const date = new Date().toUTCString();
-            let localLogs = [];
-            if (returnedSettings.localLogs) {
-                localLogs = returnedSettings.localLogs
-            }
-            localLogs.push(date);
-            await window.preload.setSetting('localLogs', localLogs);
-            await window.preload.setSetting('disconnected', true);
-            resolve(true);
-        } catch(err) {
-            window.preload.logError(err)
-            reject(false)
+            const response = await doPost();
+            if (!response) throw new Error('Network Unavailable');
+            WindowsNotifications.notify("Logged!", "Logged to network", selectedIconName, 2000);
+        } catch (err) {
+            console.error(err);
+            await saveLocalLog(returnedSettings);
+            WindowsNotifications.notify("Logged!", "Logged locally", selectedIconName, 2000);
         }
-    })
-}
+    }
+};
+
+const saveLocalLog = async (returnedSettings) => {
+    const date = new Date().toUTCString();
+    const localLogs = returnedSettings.localLogs || [];
+    localLogs.push(date);
+    await ipcRenderer.invoke('settings:set', 'localLogs', localLogs);
+    await ipcRenderer.invoke('settings:set', 'disconnected', true);
+};

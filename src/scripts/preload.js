@@ -1,258 +1,113 @@
-const {
-    contextBridge,
-    ipcRenderer,
-} = require('electron');
-const electron = require('electron')
-const app = electron.app || electron.remote.app
-const globalShortcut = /* electron.globalShortcut ||  */ electron.remote.globalShortcut
-const dialog = electron.dialog || electron.remote.dialog
-const process = electron.process || electron.remote.process
-const electronSettings = require('electron-settings')
+const { contextBridge, ipcRenderer } = require('electron');
 const path = require('path');
 const LogText = require("./logText");
 const WindowsNotifications = require('./windowsNotifications');
 const Reports = require("./reporting");
-const {
-    settings
-} = require('cluster');
-const {
-    stringify
-} = require('querystring');
-const {
-    fetchApi
-} = require('./fetchApi');
+const { fetchApi } = require('./fetchApi');
+const logger = require('electron-log/renderer');
 
-const logger = require('electron-log');
+// All settings access goes through the main process via IPC
+const getSettings = () => ipcRenderer.invoke('settings:get');
+const setSettingIPC = (key, value) => ipcRenderer.invoke('settings:set', key, value);
 
-const setHotKey = (hotKey, window) => {
-    globalShortcut.register(hotKey, () => {
-        LogText.logText(window, 'from hot key');
-    });
-}
+const iconpath = path.join(__dirname, '../images/owl_ico_16.png');
+const warnIconPath = path.join(__dirname, '../images/exclamation_mark_64.png');
+
+// postLog must be defined before contextBridge so the closure in LogText captures it
+const postLog = async (forcePost, logEntry) => {
+    try {
+        const { serverUrl, apiKey, disconnected } = await getSettings();
+        if (disconnected && !forcePost) throw new Error('Disconnected');
+        const data = logEntry ? { date: logEntry } : {};
+        const response = await fetchApi({ serverUrl, apiKey, method: 'post', data });
+        await setSettingIPC('disconnected', false);
+        return response;
+    } catch (err) {
+        logger.error(err);
+        if (err.message !== 'Disconnected') {
+            await setSettingIPC('disconnected', true);
+        }
+        ipcRenderer.send('reconnectTrigger');
+        return false;
+    }
+};
 
 contextBridge.exposeInMainWorld(
     'preload', {
-        LogText: (window, source) => LogText.logText(window, source),
-        moveLocalText: () => {
-            return new Promise(async (resolve, reject) => {
-                try {
-                    const returnedSettings = await electronSettings.get();
-                    let logsMovedCount = 0;
-                    if (returnedSettings.localLogs) {
-                        const localLogs = returnedSettings.localLogs;
-                        logsMovedCount = localLogs.length;
-                        for (log of localLogs) {
-                            const res = await postLog(true, log);
-                            if (!res) {
-                                throw new Error('Connection Error')
-                            }
-                        }
-                    }
-                    logsMovedObj = {};
-                    logsMovedObj.logsMoved = logsMovedCount;
-                    logsMovedObj.selectedIcon = returnedSettings.selectedIcon || "owl_ico";
-                    await electronSettings.set('localLogs', [])
-                    resolve(logsMovedObj);
-                } catch (err) {
-                    logger.error(err)
-                    reject(false)
-                }
-
-
-            });
+        LogText: (source) => LogText.logText(postLog, source),
+        moveLocalText: async () => {
+            const settings = await getSettings();
+            const localLogs = [...(settings.localLogs || [])];
+            let logsMovedCount = 0;
+            for (const log of localLogs) {
+                const res = await postLog(true, log);
+                if (!res) throw new Error('Connection Error');
+                logsMovedCount++;
+                await setSettingIPC('localLogs', localLogs.slice(logsMovedCount));
+            }
+            return {
+                logsMoved: logsMovedCount,
+                selectedIcon: settings.selectedIcon || "owl_ico"
+            };
         },
-        Reports: async (startDate,
-            endDate,
-            myDeskOnly,
-            timeDetail,
-            savePath,
-            window) => {
+        Reports: async (startDate, endDate, myDeskOnly, timeDetail, savePath) => {
             try {
-                const returnedSettings = await electronSettings.get();
-                const all = !myDeskOnly;
-                const params = {
-                    start_date: startDate,
-                    end_date: endDate,
-                    all: all
-                };
-                const response = await fetchApi({
-                    params
-                })
-                const cloudData = response.data;
-                let localData = [];
-                if (returnedSettings.localLogs) {
-                    localData = returnedSettings.localLogs;
-                }
-                const reportText = Reports.generateReportText(cloudData, timeDetail);
-                const reportingComplete = await Reports.writeReportToCsv(reportText, savePath);
-                return reportingComplete;
+                const { serverUrl, apiKey } = await getSettings();
+                const params = { start_date: startDate, end_date: endDate, all: !myDeskOnly };
+                const response = await fetchApi({ serverUrl, apiKey, params });
+                const reportText = Reports.generateReportText(response.data, timeDetail);
+                return await Reports.writeReportToCsv(reportText, savePath);
             } catch (err) {
-                logger.error(err)
-                if (error === "connection error") {
-                    WindowsNotifications.notify("Cannot connect!", "Please connect to network", "exclamation_mark_64.png", 3500, returnedSettings.altNotifications, window);
-                }
+                logger.error(err);
                 return false;
             }
         },
-        fileDialog: async () => {
-            const result = await dialog.showOpenDialog({
-                properties: ['openDirectory']
-            })
-            const chosenDir = result.filePaths[0];
-            return chosenDir;
-        },
-        WindowsNotifications: (notificationTitle, notificationText, icon, hangTime, altNotifications, window) => WindowsNotifications.notify(notificationTitle, notificationText, icon, hangTime, altNotifications, window),
+        fileDialog: async () => ipcRenderer.invoke('showOpenDialog'),
+        WindowsNotifications: (notificationTitle, notificationText, icon, hangTime) =>
+            WindowsNotifications.notify(notificationTitle, notificationText, icon, hangTime),
         reminders: () => {
             return new Promise(async (resolve, reject) => {
-                const returnedSettings = await electronSettings.get();
-                let localPunches = 0;
-                if (returnedSettings.localLogs) {
-                    localPunches = returnedSettings.localLogs.length;
-                }
+                const settings = await getSettings();
+                const localPunches = settings.localLogs?.length || 0;
                 try {
-                    if (returnedSettings.disconnected) {
-                        throw new Error('Disconnected')
-                    }
-                    const response = await fetchApi();
-                    const sharedPunchCount = response.data.length;
-                    let sharedPunches = true;
-                    if (!sharedPunchCount && sharedPunchCount !== 0) {
-                        sharedPunches = false;
-                    }
+                    if (settings.disconnected) throw new Error('Disconnected');
+                    const { serverUrl, apiKey } = settings;
+                    const response = await fetchApi({ serverUrl, apiKey });
                     resolve({
-                        punchCount: localPunches + sharedPunchCount,
-                        sharedPunches: sharedPunches
+                        punchCount: localPunches + response.data.length,
+                        sharedPunches: true,
+                        logs: response.data
                     });
                 } catch (err) {
-                    logger.error(err)
+                    logger.error(err);
                     reject(localPunches);
                 }
             });
         },
-        getIconPath: () => {
-            const iconpath = path.join(__dirname, '/images/owl_ico_16.png');
-            return iconpath;
-        },
-        getWarnIconPath: () => {
-            const warnIconPath = path.join(__dirname, '/images/exclamation_mark_64.png');
-            return warnIconPath
-        },
-        getVersion: () => app.getVersion(),
-        getElectronVersion: () => {
-            return process.versions.electron;
-        },
-        getChromeVersion: () => {
-            return process.versions.chrome;
-        },
-        registerHotKey: (hotKey, window) => {
-            let validHotKeys = ['F9', 'Ctrl+F9', 'Ctrl+Alt+F9'];
-            if (validHotKeys.includes(hotKey)) {
-                setHotKey(hotKey, window)
-            }
-        },
-        unregisterHotKey: hotKey => {
-            let validHotKeys = ['F9', 'Ctrl+F9', 'Ctrl+Alt+F9'];
-            if (validHotKeys.includes(hotKey)) {
-                globalShortcut.unregister(hotKey)
-            }
-        },
-        showMessageBox: msgObj => {
-            dialog.showMessageBox(msgObj)
-        },
-        getSettings: async () => {
-            const fetchedSettings = await electronSettings.get();
-            return fetchedSettings;
-        },
-        setSetting: async (key, value) => {
-            const validKeys = ['showUpdateSummary', 'selectedIcon', 'logPath', 'deskName', 'hotKey', 'reminders', 'assumeDisconnected', 'altNotifications', 'localLogs', 'disconnected'];
-            if (validKeys.includes(key)) {
-                await electronSettings.set(key, value);
-            }
-        },
-        deleteSetting: async (key) => {
-            const validKeys = ['showUpdateSummary', 'selectedIcon', 'logPath', 'deskName', 'hotKey', 'reminders', 'assumeDisconnected', 'altNotifications', 'localLogs'];
-            if (validKeys.includes(key)) {
-                await electronSettings.unset(key);
-            }
-        },
+        getIconPath: () => iconpath,
+        getWarnIconPath: () => warnIconPath,
+        getVersion: () => ipcRenderer.invoke('getVersion'),
+        getElectronVersion: () => process.versions.electron,
+        getChromeVersion: () => process.versions.chrome,
+        registerHotKey: (hotKey) => ipcRenderer.invoke('registerHotKey', hotKey),
+        unregisterHotKey: (hotKey) => ipcRenderer.invoke('unregisterHotKey', hotKey),
+        showMessageBox: (msgObj) => ipcRenderer.invoke('showMessageBox', msgObj),
+        getSettings: () => getSettings(),
+        setSetting: (key, value) => setSettingIPC(key, value),
+        deleteSetting: (key) => ipcRenderer.invoke('settings:unset', key),
         postLog: () => postLog(),
         send: (channel, data) => {
-            let validChannels = ['getCurrentCount', 'remindersChanged', 'showOwlWindow', 'showAboutWindow', 'owlSelected', 'settingsComplete', 'electron-toaster-reply', 'electron-toaster-message', 'newOwl', 'openUrlInBrowser'];
+            const validChannels = ['getCurrentCount', 'remindersChanged', 'showOwlWindow', 'showAboutWindow', 'owlSelected', 'settingsComplete', 'newOwl', 'openUrlInBrowser', 'reconnectTrigger'];
             if (validChannels.includes(channel)) {
                 ipcRenderer.send(channel, data);
             }
         },
-        on: (channel, func) => {
-            let validChannels = ['reminderNotify', 'newOwl', 'updateCount'];
-            if (validChannels.includes(channel)) {
-                ipcRenderer.on(channel, (event, message) => {
-                    return message;
-                });
-            }
-        },
         receive: (channel, func) => {
-            let validChannels = ['reminderNotify', 'newOwl', 'updateCount'];
+            const validChannels = ['reminderNotify', 'newOwl', 'updateCount', 'reconnected', 'hotKeyPressed'];
             if (validChannels.includes(channel)) {
                 ipcRenderer.on(channel, (event, ...args) => func(...args));
             }
         },
-        logError: (err) => {
-            logger.error(err);
-        },
-        reconnect: async () => {
-            const warnIconPath = path.join(__dirname, '/images/exclamation_mark_64.png');
-            const iconpath = path.join(__dirname, '/images/owl_ico_16.png');
-            try {
-                const request = {
-                    method: 'head'
-                }
-                const response = await fetchApi(request);
-                dialog.showMessageBox({
-                    message: "Connected to Network!",
-                    buttons: ["OK"],
-                    type: "info",
-                    icon: iconpath,
-                    title: "Connected",
-                  })
-                return response;
-            } catch (err) {
-                logger.error(err)
-                dialog.showMessageBox({
-                    message: "Unable to connect to network",
-                    buttons: ["OK"],
-                    type: "info",
-                    icon: warnIconPath,
-                    title: "Error",
-                  })
-                return false;
-            }
-        }
-
+        logError: (err) => logger.error(err)
     }
-)
-
-const postLog = async (forcePost, log) => {
-    // to send specific time post time as GMT
-    //    {
-    //        "date": "2022-12-22T14:38:51.087Z"      
-    //    }
-    try {
-        const data = {};
-        if (log) {
-            data.date = log;
-        }
-        const returnedSettings = await electronSettings.get();
-        if (returnedSettings.disconnected && !forcePost) {
-            throw new Error('Disconnected');
-        }
-        const request = {
-            method: 'post',
-            data: data
-        }
-        const response = await fetchApi(request);
-        return response;
-    } catch (err) {
-        logger.error(err)
-        return false;
-    }
-}
+);

@@ -1,32 +1,18 @@
 const axios = require('axios');
-const settings = require('electron-settings');
-const log = require('electron-log');
+
+const buildLogUrl = (serverUrl, apiKey) => `${serverUrl}?key=${apiKey}`;
 module.exports = {
-    fetchApi: (request = {}) => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const {
-                    method = 'get',
-                    params = {},
-                    data = {}
-                } = request;
-                const {
-                    logPath
-                } = await settings.get();
-                params.time = new Date().getTime();
-                const response = await axios({
-                    method: method,
-                    url: logPath,
-                    data: data,
-                    params: params
-                });
-                await settings.set('disconnected', false)
-                resolve(response);
-            } catch (err) {
-                await settings.set('disconnected', true)
-                reject(err);
-            }
-        })
-        
+    fetchApi: async ({ serverUrl, apiKey, method = 'get', params = {}, data = {} }) => {
+        const url = buildLogUrl(serverUrl, apiKey);
+        params.time = new Date().getTime();
+        return axios({ method, url, data, params });
+    },
+    checkHealth: async (serverUrl, apiKey) => {
+        try {
+            await axios.head(buildLogUrl(serverUrl, apiKey));
+            return true;
+        } catch {
+            return false;
+        }
     }
-}
+};

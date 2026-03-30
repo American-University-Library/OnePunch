@@ -18,7 +18,7 @@
 <body>
     <div class="tabContent ui grid middle aligned centered">
         <div class="twelve wide column">
-            <h1 style="padding: 30px 0px 10px 0px;text-align: center;;">
+            <h1 style="padding: 30px 0px 10px 0px;text-align: center;">
                 OnePunch Update
             </h1>
         </div>
@@ -28,18 +28,18 @@
         <div class="fourteen wide column">
             <p style="text-align: center;"><strong>Here's what's changed in <span id="appVersion"></span></strong></p>
             <ul>
-                <li>There is now a button to reconnect to the network on the front screen of the app. After you've reconnected your computer to the internet click the reconnect button to begin logging to the cloud again.</li>
-                <li>Change to wording of update confirmation button</li>
-                <li>Miscellaneous bug fixes</li>
+                <li>The app now reconnects to the network automatically. If your computer loses internet, interactions are saved locally and synced to the cloud once you're back online — no action needed.</li>
+                <li>Reminder popups now include a chart showing interactions logged each hour of the day.</li>
+                <li>The settings screen now has separate fields for the Server URL and API Key.</li>
+                <li>Performance, reliability, and security improvements throughout.</li>
             </ul>
         </div>
     </div>
     <script>
-        const appVersion = window.preload.getVersion();
-        document.getElementById('appVersion').textContent = appVersion;
+        window.preload.getVersion().then(v => {
+            document.getElementById('appVersion').textContent = v;
+        });
     </script>
 </body>
-
-
 
 </html>
